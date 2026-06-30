@@ -1,0 +1,2992 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Ledger Wallet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="manifest" href="./manifest-l.json?v=2" />
+    <meta name="apple-mobile-web-app-title" content="Ledger">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-startup-image" href="./assets/ledger.png">
+    <link rel="icon" type="image/png" href="./assets/ledger.png">
+    <link rel="apple-touch-icon" href="./assets/ledger.png">
+    <link rel="stylesheet" href="./css/ledger.css?v=98" />
+</head>
+
+<body>
+
+    <div id="loading-screen">
+        <style>
+            #loading-screen {
+                position: fixed;
+                inset: 0;
+                z-index: 9999999;
+                background: #000;
+                transition: opacity .4s ease;
+                will-change: opacity;
+                transform: translateZ(0);
+                -webkit-transform: translateZ(0)
+            }
+
+            #loading-screen.fade-out {
+                opacity: 0;
+                pointer-events: none
+            }
+
+            #loading-screen img {
+                position: absolute;
+                border-radius: 18px
+            }
+        </style>
+        <img src="./assets/ledger-192.png" width="80" height="80" alt="" id="ls-icon">
+        <script>
+            (function() {
+                var i = document.getElementById('ls-icon');
+                i.style.top = (window.innerHeight / 2 - 40) + 'px';
+                i.style.left = (window.innerWidth / 2 - 40) + 'px';
+            })()
+        </script>
+    </div>
+
+    <div id="activation-overlay">
+        <style>
+            #activation-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 999999;
+                background: #0a0a0a;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+            }
+
+            .ao-box {
+                text-align: center;
+                max-width: 380px;
+                width: 100%;
+                padding: 24px;
+                box-sizing: border-box
+            }
+
+            .ao-logo {
+                width: 56px;
+                height: 56px;
+                margin: 0 auto 18px;
+                border-radius: 14px;
+                display: block
+            }
+
+            .ao-title {
+                color: #fff;
+                font-size: 26px;
+                font-weight: 700;
+                letter-spacing: -.02em;
+                margin: 0 0 6px
+            }
+
+            .ao-sub {
+                color: #8e8e93;
+                font-size: 14px;
+                font-weight: 500;
+                margin: 0 0 28px;
+                line-height: 1.4
+            }
+
+            .ao-input {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 14px 16px;
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, .1);
+                background: #1c1c1e;
+                color: #fff;
+                font-size: 16px;
+                font-weight: 600;
+                text-align: center;
+                letter-spacing: 2px;
+                outline: none;
+                transition: border-color .2s
+            }
+
+            .ao-input:focus {
+                border-color: #FF8A3C
+            }
+
+            .ao-input::placeholder {
+                color: #555;
+                font-weight: 400;
+                letter-spacing: 0
+            }
+
+            .ao-btn {
+                width: 100%;
+                margin-top: 14px;
+                padding: 14px;
+                border-radius: 12px;
+                border: none;
+                background: #FF8A3C;
+                color: #0a0a0a;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: opacity .2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px
+            }
+
+            .ao-btn:disabled {
+                opacity: .5;
+                cursor: default
+            }
+
+            .ao-btn:not(:disabled):active {
+                opacity: .7
+            }
+
+            .ao-error {
+                color: #ff453a;
+                font-size: 13px;
+                font-weight: 600;
+                margin-top: 14px;
+                min-height: 20px
+            }
+
+            .ao-spinner {
+                width: 16px;
+                height: 16px;
+                border: 2px solid #0a0a0a;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: ao-spin .6s linear infinite;
+                display: none
+            }
+
+            @keyframes ao-spin {
+                to {
+                    transform: rotate(360deg)
+                }
+            }
+        </style>
+        <div class="ao-box">
+            <img class="ao-logo" src="./assets/ledger-192.png" alt="Ledger">
+            <h1 class="ao-title">Larp Ledger</h1>
+            <p class="ao-sub">Enter your license key to continue</p>
+            <input class="ao-input" id="ak-input" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" spellcheck="false" autocomplete="off">
+            <button class="ao-btn" id="ak-btn">Activate</button>
+            <div class="ao-error" id="ak-error"></div>
+        </div>
+    </div>
+
+    <script src="./js/activate.js?v=1"></script>
+
+    <div class="app">
+
+        <div class="spinner center" id="pullSpinner">
+            <div class="spinner-blade"></div>
+            <div class="spinner-blade"></div>
+            <div class="spinner-blade"></div>
+            <div class="spinner-blade"></div>
+            <div class="spinner-blade"></div>
+            <div class="spinner-blade"></div>
+            <div class="spinner-blade"></div>
+            <div class="spinner-blade"></div>
+        </div>
+
+        <div class="header">
+            <div class="header-left">
+                <div class="header-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 50.118111 47.339802" version="1.1" id="svg1" xml:space="preserve">
+                <defs id="defs1"></defs>
+                <g id="layer1" transform="translate(-92.072507,-53.731472)">
+                  <path id="rect2" style="fill:none;stroke:#FFF;stroke-width:5;stroke-linecap:square;stroke-miterlimit:5.5;paint-order:markers fill stroke" d="m 94.632665,82.039954 h 36.550265 c 4.67994,0 8.44754,3.67307 8.44754,8.235584 0,4.562514 -3.7676,8.235585 -8.44754,8.235585 H 94.632665 c 0,0 4e-6,-3.673071 4e-6,-8.235585 0,-4.562514 -4e-6,-8.235584 -4e-6,-8.235584 z"></path>
+                  <path style="fill:none;stroke:#FFF;stroke-width:5;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 99.31287,68.91462 12.08941,11.552063" id="path2"></path>
+                  <path style="fill:none;stroke:#FFF;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 110.32943,57.672202 25.23664,25.236643" id="path3"></path>
+                  <path style="fill:none;stroke:#FFF;stroke-width:5;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="M 99.181839,68.41536 110.31466,57.525201" id="path4"></path>
+                  <ellipse style="fill:#FFF;fill-opacity:1;stroke:none;stroke-width:14;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" id="path5-7" ry="3.3811719" rx="3.381" cy="90.098267" cx="130.88669"></ellipse>
+                </g>
+              </svg>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-btn compass-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                <path d="M14.1214 14.1213L16.5165 8.13347C16.6798 7.72532 16.2747 7.32028 15.8666 7.48354L9.87872 9.87868M14.1214 14.1213L8.13351 16.5165C7.72536 16.6797 7.32032 16.2747 7.48358 15.8665L9.87872 9.87868M14.1214 14.1213L9.87872 9.87868" stroke="#FFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="9" stroke="#FFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+                </div>
+                <div class="header-btn" id="txnBellBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+              </svg>
+                </div>
+                <div class="header-btn" aria-label="Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path>
+              </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-overlay" id="scrollOverlay"></div>
+
+        <div class="scrollable">
+            <div id="ptr-wrapper">
+
+                <div class="balance-section">
+                    <div class="balance-amount" id="balanceDisplay">$0<span class="balance-decimals">.00</span></div>
+                    <div class="balance-change" id="balanceChange">
+                        <span class="bc-pct" id="balanceChangePct">0.00%</span>
+                        <span class="bc-dot">•</span>
+                        <span class="bc-today" data-i18n="ledger.today">Today</span>
+                        <svg class="bc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="action-btn" id="actReceive">
+            <div class="action-icon">
+              <img src="./assets/icons/arrow-down.svg" width="20" height="20" alt="">
+            </div>
+            <span data-i18n="btn.receive">Receive</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon action-swap-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 13.296636 9.7876453" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-92.413054,-432.43024)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 98.461808,433.08284 h 2.374562 c 0,0 1.06334,0.16626 1.87758,0.99402 0.81424,0.82775 0.85594,1.7395 0.85594,1.7395 v 5.63271" id="path3"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 102.0743,440.12113 1.49676,1.49678 1.53864,-1.53864" id="path4"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 99.660949,441.56527 h -2.374562 c 0,0 -1.06334,-0.16626 -1.87758,-0.99402 -0.81424,-0.82775 -0.85594,-1.7395 -0.85594,-1.7395 v -5.63271" id="path3-7"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 96.048457,434.52698 -1.49676,-1.49678 -1.53864,1.53864" id="path4-6"/></g></svg>
+            </div>
+            <span data-i18n="btn.swap">Swap</span>
+          </button>
+                    <button class="action-btn">
+              <div class="action-icon">
+                <svg style="width: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </div>
+              <span data-i18n="btn.buy">Buy</span>
+          </button>
+                    <button class="action-btn" id="actSend">
+            <div class="action-icon">
+              <img src="./assets/icons/arrow-up.svg" width="20" height="20" alt="">
+            </div>
+            <span data-i18n="btn.send">Send</span>
+          </button>
+                </div>
+
+
+                <div class="market-section">
+                    <div class="market-header">
+                        <span class="market-title" data-i18n="ledger.explore_market">Explore the market</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="15" height="15" fill="currentColor"><path d="M439.1 297.4C451.6 309.9 451.6 330.2 439.1 342.7L279.1 502.7C266.6 515.2 246.3 515.2 233.8 502.7C221.3 490.2 221.3 469.9 233.8 457.4L371.2 320L233.9 182.6C221.4 170.1 221.4 149.8 233.9 137.3C246.4 124.8 266.7 124.8 279.2 137.3L439.2 297.3z"/></svg>
+                    </div>
+                    <div class="market-scroll">
+                        <div class="market-card gauge-card">
+                            <svg class="gauge-svg" viewBox="0 0 44 30" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="gaugeGrad" x1="5.83" y1="0" x2="38.17" y2="0" gradientUnits="userSpaceOnUse">
+                    <!-- GAUGE COLORS: edit the two stop-color values below -->
+                    <stop offset="0%" stop-color="#F67374"/>   <!-- left end (Extreme Fear)  -->
+                    <stop offset="100%" stop-color="#71C65D"/> <!-- right end (Extreme Greed) -->
+                  </linearGradient>
+                </defs>
+                <path d="M 5.83 27.75 A 17 17 0 1 1 38.17 27.75" stroke="#2a2a2a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 5.83 27.75 A 17 17 0 1 1 38.17 27.75" stroke="url(#gaugeGrad)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <text id="gaugeNum" x="22" y="25" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,sans-serif">49</text>
+                <circle id="gaugeDot" cx="21.4" cy="5.5" r="3.2" fill="white" stroke="#000000" stroke-width="1"/>
+              </svg>
+                            <div class="mover-ticker" data-i18n="ledger.mood">Mood</div>
+                            <div class="gauge-level" id="gaugeMoodLabel" data-i18n="ledger.neutral">Neutral</div>
+                        </div>
+                        <div id="mover-cards-container" style="display:contents;"></div>
+                        <!-- Static market cards (decorative / fake buttons — do not navigate). % is live from CoinGecko; replace icon placeholders with your own. -->
+                        <div class="market-card mover-card fake-mover" data-cg-id="avalanche-2">
+                            <div class="mover-logo">
+                                <img src="./assets/avalanche-avax-logo.png" alt="AVAX">
+                            </div>
+                            <div class="mover-ticker">AVAX</div>
+                            <div class="mover-change flat">–</div>
+                        </div>
+                        <div class="market-card mover-card fake-mover" data-cg-id="kucoin-shares">
+                            <div class="mover-logo">
+                                <img src="./assets/kucoin-token-kcs-logo.png" alt="KCS">
+                            </div>
+                            <div class="mover-ticker">KCS</div>
+                            <div class="mover-change flat">–</div>
+                        </div>
+                        <div class="market-card mover-card fake-mover" data-cg-id="render-token">
+                            <div class="mover-logo">
+                                <img src="./assets/5690.png" alt="RENDER">
+                            </div>
+                            <div class="mover-ticker">RENDER</div>
+                            <div class="mover-change flat">–</div>
+                        </div>
+                        <div class="market-card mover-card view-all-card">
+                            <div class="view-all-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="12" height="12" fill="currentColor"><path d="M439.1 297.4C451.6 309.9 451.6 330.2 439.1 342.7L279.1 502.7C266.6 515.2 246.3 515.2 233.8 502.7C221.3 490.2 221.3 469.9 233.8 457.4L371.2 320L233.9 182.6C221.4 170.1 221.4 149.8 233.9 137.3C246.4 124.8 266.7 124.8 279.2 137.3L439.2 297.3z"></path></svg>
+                            </div>
+                            <div class="mover-ticker" data-i18n="ledger.view_all">View All</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perpetuals (decorative / fake button — does not navigate) -->
+                <div class="perp-section">
+                    <div class="perp-title" data-i18n="perp.title">Perpetuals</div>
+                    <div class="perp-card">
+                        <div class="perp-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path transform="translate(12 0) scale(0.9 1) translate(-12 0)" d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.33-6 4Z"/></svg>
+                        </div>
+                        <span class="perp-label" data-i18n="perp.trade">Trade with leverage</span>
+                        <svg class="perp-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                </div>
+
+                <div class="segment-control">
+                    <button class="segment-btn active" data-seg="assets" data-i18n="tab.assets">Assets</button>
+                    <button class="segment-btn" data-seg="accounts" data-i18n="tab.accounts">Accounts</button>
+                </div>
+
+                <div class="asset-list" id="assetList"></div>
+                <div class="pill-btn" data-i18n="btn.see_all_assets">See all assets</div>
+
+                <div class="fy-section">
+                    <div class="fy-header">
+                        <span class="fy-title">For you</span>
+                    </div>
+                    <div class="fy-card" style="margin:0;border-radius:0">
+                        <img class="fy-card-img" src="./assets/smart_extras.png" alt="">
+                    </div>
+                </div>
+
+                <div class="transaction-history">
+                    <h3 data-i18n="ledger.tx_history">TRANSACTION HISTORY</h3>
+                </div>
+                <div class="pill-btn" data-i18n="btn.see_all">See all</div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav-overlay"></div>
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-nav="home">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 13.848147 12.151132" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-24.988839,-431.27904)"><path style="fill:currentColor;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;paint-order:fill markers stroke" d="m 26.562951,436.14134 v 6.78884 h 3.01395 v -4.17936 c 0,0 0.404468,-1.3469 2.330789,-1.35359 1.926321,-0.007 2.370975,1.35359 2.370975,1.35359 v 4.17936 h 2.973764 v -6.78884 l -5.344739,-3.1371 z" id="path1"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 25.58884,436.05575 6.31885,-4.17673 6.329295,4.17673" id="path2"/></g></svg>
+        <span data-i18n="nav.home">Home</span>
+      </button>
+        <button class="nav-btn" data-nav="swap">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 13.296636 9.7876453" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-92.413054,-432.43024)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 98.461808,433.08284 h 2.374562 c 0,0 1.06334,0.16626 1.87758,0.99402 0.81424,0.82775 0.85594,1.7395 0.85594,1.7395 v 5.63271" id="path3"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 102.0743,440.12113 1.49676,1.49678 1.53864,-1.53864" id="path4"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 99.660949,441.56527 h -2.374562 c 0,0 -1.06334,-0.16626 -1.87758,-0.99402 -0.81424,-0.82775 -0.85594,-1.7395 -0.85594,-1.7395 v -5.63271" id="path3-7"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 96.048457,434.52698 -1.49676,-1.49678 -1.53864,1.53864" id="path4-6"/></g></svg>
+        <span data-i18n="btn.swap">Swap</span>
+      </button>
+        <button class="nav-btn" data-nav="earn">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 13.76413 11.62765" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-159.02558,-431.52831)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 162.03902,439.47829 2.72499,-2.725 1.76438,1.76438 2.97985,-2.97985" id="path5"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 169.73782,436.63346 v -1.44177 h -1.27214" id="path6"/><rect style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.218;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" id="rect7" width="12.546138" height="10.409659" x="159.6346" y="432.13727" ry="1.3225703"/></g></svg>
+        <span data-i18n="nav.earn">Earn</span>
+      </button>
+        <button class="nav-btn" data-nav="card">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="12.811782mm" height="9.7227917mm" viewBox="0 0 12.811782 9.7227917" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-226.61325,-432.45312)"><rect style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.19718;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" id="rect8" width="11.614612" height="8.5256071" x="227.21184" y="433.05173" ry="2.0015678"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.218;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 227.34259,435.46919 h 11.27285" id="path8"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.218;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5;stroke-dasharray:none;paint-order:fill markers stroke" d="m 229.86996,437.91632 h 1.48432" id="path9"/></g></svg>
+        <span data-i18n="nav.card">Card</span>
+      </button>
+    </nav>
+
+    </div>
+
+    <div id="settingsOverlay" class="settings-overlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <span class="settings-title" data-i18n="settings.edit_portfolio">Edit Portfolio</span>
+                <button id="settingsClose" class="settings-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-section">
+                    <div class="settings-section-title">Balances</div>
+                    <div class="settings-row">
+                        <label>BTC</label>
+                        <input id="set-btc" type="number" min="0" step="any" placeholder="0">
+                    </div>
+                    <div class="settings-row">
+                        <label>SOL</label>
+                        <input id="set-sol" type="number" min="0" step="any" placeholder="0">
+                    </div>
+                    <div class="settings-row">
+                        <label>ETH</label>
+                        <input id="set-eth" type="number" min="0" step="any" placeholder="0">
+                    </div>
+                    <div class="settings-row">
+                        <label>TRX</label>
+                        <input id="set-trx" type="number" min="0" step="any" placeholder="0">
+                    </div>
+                    <div class="settings-row">
+                        <label>BNB</label>
+                        <input id="set-bnb" type="number" min="0" step="any" placeholder="0">
+                    </div>
+                    <div class="settings-row">
+                        <label>USDT</label>
+                        <input id="set-usdt" type="number" min="0" step="any" placeholder="0">
+                        <select id="set-usdtChain" class="chain-select">
+              <option value="eth">ETH</option>
+              <option value="sol">SOL</option>
+              <option value="trx">TRX</option>
+              <option value="bnb">BNB</option>
+            </select>
+                    </div>
+                    <div class="settings-row">
+                        <label>USDC</label>
+                        <input id="set-usdc" type="number" min="0" step="any" placeholder="0">
+                        <select id="set-usdcChain" class="chain-select">
+              <option value="eth">ETH</option>
+              <option value="sol">SOL</option>
+              <option value="trx">TRX</option>
+              <option value="bnb">BNB</option>
+            </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">Settings</div>
+                    <div class="settings-row">
+                        <label data-i18n="settings.curr_label">Curr.</label>
+                        <select id="set-currency">
+              <option value="usd">$ USD</option>
+              <option value="eur">€ EUR</option>
+              <option value="gbp">£ GBP</option>
+              <option value="cad">CA$ CAD</option>
+              <option value="aud">A$ AUD</option>
+              <option value="jpy">¥ JPY</option>
+              <option value="chf">CHF CHF</option>
+              <option value="cny">¥ CNY</option>
+              <option value="inr">₹ INR</option>
+              <option value="brl">R$ BRL</option>
+              <option value="sek">kr SEK</option>
+              <option value="nok">kr NOK</option>
+              <option value="nzd">NZ$ NZD</option>
+              <option value="sgd">S$ SGD</option>
+              <option value="hkd">HK$ HKD</option>
+              <option value="krw">₩ KRW</option>
+              <option value="try">₺ TRY</option>
+              <option value="mxn">MX$ MXN</option>
+              <option value="dkk">kr DKK</option>
+              <option value="czk">Kč CZK</option>
+              <option value="zar">R ZAR</option>
+            </select>
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n="settings.api_key">API Key</label>
+                        <input id="set-cgApiKey" type="text" placeholder="Optional CoinGecko API key">
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n="settings.pro_key">Pro Key</label>
+                        <input id="set-cgApiKeyPro" type="checkbox">
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">Language</div>
+                    <div class="settings-row">
+                        <label data-i18n="lang.label">Lang.</label>
+                        <select class="i18n-switcher">
+              <option value="en">EN — English</option>
+              <option value="fr">FR — Français</option>
+              <option value="es">ES — Español</option>
+              <option value="pt">PT — Português</option>
+              <option value="ru">RU — Русский</option>
+              <option value="tr">TR — Türkçe</option>
+            </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title" data-i18n="settings.custom_tokens_sol">Custom Tokens (Solana)</div>
+                    <div id="custom-sol-token-list"></div>
+                    <button id="addSolToken" type="button" class="l-add-token-btn" data-i18n="btn.add_sol_token_l">+ Add SOL Token by Contract Address</button>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title" data-i18n="settings.custom_tokens_eth">Custom Tokens (Ethereum)</div>
+                    <div id="custom-eth-token-list"></div>
+                    <button id="addEthToken" type="button" class="l-add-token-btn" data-i18n="btn.add_eth_token_l">+ Add ETH Token by Contract Address</button>
+                </div>
+            </div>
+            <button id="settingsConfirm" class="settings-confirm" data-i18n="btn.save">Save</button>
+        </div>
+    </div>
+
+    <div id="txnOverlay" class="settings-overlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <span class="settings-title" data-i18n="tx.add">Add Transaction</span>
+                <button id="txnClose" class="settings-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-section">
+                    <div class="settings-section-title">Transaction Details</div>
+                    <div class="settings-row">
+                        <label data-i18n="tx.type">Type</label>
+                        <div class="txn-type-toggle">
+                            <button class="txn-type-btn active" data-type="received">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="12 19 12 5 5 12"/><polyline points="12 19 19 12"/></svg>
+                <span data-i18n="tx.received">Received</span>
+              </button>
+                            <button class="txn-type-btn" data-type="sent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="12 5 12 19 5 12"/><polyline points="12 19 19 12"/></svg>
+                <span data-i18n="tx.sent">Sent</span>
+              </button>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n="tx.crypto">Asset</label>
+                        <select id="txn-coin">
+              <option value="btc">BTC — Bitcoin</option>
+              <option value="sol">SOL — Solana</option>
+              <option value="eth">ETH — Ethereum</option>
+              <option value="trx">TRX — TRON</option>
+              <option value="bnb">BNB — BNB</option>
+            </select>
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n="tx.amount">Amount</label>
+                        <input id="txn-amount" type="number" min="0" step="any" placeholder="0.00">
+                    </div>
+                    <div class="settings-row settings-row--split">
+                        <div class="settings-field">
+                            <label data-i18n="tx.date">Date</label>
+                            <input id="txn-date" type="date">
+                        </div>
+                        <div class="settings-field">
+                            <label data-i18n="tx.time">Time</label>
+                            <input id="txn-time" type="time">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="txnConfirm" class="settings-confirm" data-i18n="tx.add">
+        <span>Add Transaction</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#131214" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+            <button id="txnClear" class="settings-clear" data-i18n="tx.clear">Clear all transactions</button>
+        </div>
+    </div>
+
+    <div id="coinPanel">
+        <div class="cp-top-gradient" id="cpTopGradient"></div>
+        <div class="cp-header">
+            <button class="cp-back" id="cpBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
+      </button>
+            <span class="cp-title" id="cpTitle">Your Bitcoin</span>
+            <div class="header-btn" id="cpSettingsBtn" style="cursor:pointer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path>
+        </svg>
+            </div>
+        </div>
+        <div class="cp-body">
+            <div class="cp-coin-top">
+                <div class="cp-logo-wrap">
+                    <img class="cp-logo-img" id="cpLogoImg" src="" alt="">
+                    <div class="cp-logo-fallback" id="cpLogoFallback" style="display:none">?</div>
+                    <img class="cp-chain-badge" id="cpChainBadge" src="" alt="" style="display:none">
+                </div>
+                <div class="cp-value" id="cpValue">$0.00</div>
+                <div class="cp-amount" id="cpAmount">0 BTC</div>
+                <div class="cp-pnl" id="cpPnl"></div>
+            </div>
+
+            <div class="cp-chart-wrap" id="cpChartWrap">
+                <svg id="cpChartSvg" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="cpChartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF8A3C" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#FF8A3C" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <path id="cpChartFill" d="" fill="url(#cpChartGrad)"/>
+          <path id="cpChartLine" d="" fill="none" stroke="#FF8A3C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line id="cpChartCross" x1="0" y1="0" x2="0" y2="0" stroke="rgba(255,255,255,0.25)" stroke-width="3" style="display:none"/>
+          <circle id="cpChartDot" cx="0" cy="0" r="4.5" fill="white" stroke="#FF8A3C" stroke-width="2" style="display:none"/>
+        </svg>
+            </div>
+
+            <div class="cp-ranges">
+                <button class="cp-range-btn active">1D</button>
+                <button class="cp-range-btn">1W</button>
+                <button class="cp-range-btn">1M</button>
+                <button class="cp-range-btn">1Y</button>
+                <button class="cp-range-btn">ALL</button>
+            </div>
+
+            <div id="cpActionsCustom" style="display:none">
+                <div class="cp-section-label">Quick Actions</div>
+                <div class="cp-actions-3">
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 14px;" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="7.0902891mm" height="8.1352758mm" viewBox="0 0 7.0902891 8.1352758" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-107.31556,63.095403)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 110.8607,-55.453382 v -6.41939" id="path19"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 108.02903,-59.550254 2.83167,-2.831674 2.83168,2.831674" id="path20"/></g></svg>
+            </div>
+            <span data-i18n="btn.send">Send</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 14px;" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="7.0902972mm" height="8.1352673mm" viewBox="0 0 7.0902972 8.1352673" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-146.45722,63.0943)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 150.00236,-62.601042 v 6.41939" id="path19-0"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 152.83403,-58.504172 -2.83167,2.83167 -2.83168,-2.83167" id="path20-3"/></g></svg>
+            </div>
+            <span data-i18n="btn.receive">Receive</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 17px;" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="9.2619267mm" height="9.1641369mm" viewBox="0 0 9.2619267 9.1641369" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-67.056976,63.561261)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.914864;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 68.126493,-56.397359 h 7.318827 v -2.174819" id="path15"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.8;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 69.05378,-54.962805 -1.431115,-1.431116 1.361061,-1.361059" id="path16"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.914864;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 75.24939,-61.561017 h -7.318827 v 2.174819" id="path15-3"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.8;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 74.322103,-62.995571 1.431115,1.431116 -1.361061,1.361059" id="path16-3"/></g></svg>
+            </div>
+            <span data-i18n="btn.swap">Swap</span>
+          </button>
+                </div>
+            </div>
+
+            <div id="cpActionsNormal">
+                <div class="cp-section-label">Quick Actions</div>
+                <div class="cp-actions-grid">
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 14px;" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="7.0902891mm" height="8.1352758mm" viewBox="0 0 7.0902891 8.1352758" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-107.31556,63.095403)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 110.8607,-55.453382 v -6.41939" id="path19"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 108.02903,-59.550254 2.83167,-2.831674 2.83168,2.831674" id="path20"/></g></svg>
+            </div>
+            <span data-i18n="btn.send">Send</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 14px;" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="7.0902972mm" height="8.1352673mm" viewBox="0 0 7.0902972 8.1352673" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-146.45722,63.0943)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 150.00236,-62.601042 v 6.41939" id="path19-0"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 152.83403,-58.504172 -2.83167,2.83167 -2.83168,-2.83167" id="path20-3"/></g></svg>
+            </div>
+            <span data-i18n="btn.receive">Receive</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 16px;" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="8.4324951mm" height="8.5025454mm" viewBox="0 0 8.4324951 8.5025454" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-184.96309,63.244564)"><ellipse style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.009;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" id="path21" cx="188.06917" cy="-59.467892" rx="2.6007502" ry="1.1062891"/><ellipse style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.01657;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" id="path21-1" cx="190.23703" cy="-61.633766" rx="2.6489246" ry="1.1025087"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.933;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 185.4296,-59.095959 v 2.822829" id="path22"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.9;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 190.831,-59.747215 0.0101,3.456583" id="path22-1"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.85;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 192.9671,-61.238538 v 2.960612" id="path22-1-4"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.933;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 185.65232,-57.356418 c 0,0 0.74713,0.57285 2.4939,0.558963 1.74677,-0.01389 2.41554,-0.506261 2.41554,-0.506261" id="path23-8"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.805074;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 187.49096,-61.344168 v 0.8258" id="path24"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.933;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 185.66356,-55.849557 c 0,0 0.73814,0.647847 2.46639,0.640988 1.72825,-0.0069 2.49299,-0.657437 2.49299,-0.657437" id="path25"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.899999;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 190.91295,-58.848385 c 0,0 0.13841,-0.09286 0.21753,-0.09527 0.98253,-0.02999 1.59901,-0.465521 1.59901,-0.465521" id="path26"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.899999;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 190.90508,-57.363418 c 0,0 0.13841,-0.09286 0.21753,-0.09527 0.98253,-0.02999 1.64598,-0.49707 1.64598,-0.49707" id="path26-9"/></g></svg>
+            </div>
+            <span data-i18n="nav.earn">Earn</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 17px;" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="9.2619267mm" height="9.1641369mm" viewBox="0 0 9.2619267 9.1641369" version="1.1" id="svg1" xml:space="preserve"><defs id="defs1"/><g id="layer1" transform="translate(-67.056976,63.561261)"><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.914864;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 68.126493,-56.397359 h 7.318827 v -2.174819" id="path15"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.8;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 69.05378,-54.962805 -1.431115,-1.431116 1.361061,-1.361059" id="path16"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.914864;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 75.24939,-61.561017 h -7.318827 v 2.174819" id="path15-3"/><path style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:0.8;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:5.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" d="m 74.322103,-62.995571 1.431115,1.431116 -1.361061,1.361059" id="path16-3"/></g></svg>
+            </div>
+            <span data-i18n="btn.swap">Swap</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <span>Sell</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon">
+              <svg style="width: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <span data-i18n="btn.buy">Buy</span>
+          </button>
+                </div>
+            </div>
+
+            <div id="cpAccountSection">
+                <div class="cp-section-label" id="cpAccountLabel">YOUR BTC ACCOUNT</div>
+                <div class="cp-account-row">
+                    <div class="cp-account-info">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <div class="cp-account-name" id="cpAccountName">BTC Main</div>
+                            <span id="cpNativeSegwitBadge" style="display:none;padding:3px 6px;font-size:11px;font-weight:700;color:#FFF;background:#2B2A2C;border-radius:5px;white-space:nowrap">NATIVE SEGWIT</span>
+                        </div>
+                        <div class="cp-account-addr-row">
+                            <div class="cp-account-addr" id="cpAccountAddr">xxxx...xxxx</div>
+                            <img class="cp-account-coin-icon" id="cpAccountCoinIcon" src="" alt="" style="display:none">
+                        </div>
+                    </div>
+                    <div class="cp-account-value" id="cpAccountValue">$0.00</div>
+                </div>
+                <button class="cp-add-account-btn" id="cpAddAccountBtn">
+          <span>Add new or existing account</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+            </div>
+
+            <div id="cpMarketSection">
+                <div class="cp-section-label" id="cpMarketLabel">Market Price</div>
+                <div class="cp-market-row">
+                    <div class="cp-market-col">
+                        <div class="cp-market-sub" id="cpMarketSub">1 BTC</div>
+                        <div class="cp-market-price" id="cpMarketPrice">$0.00</div>
+                    </div>
+                    <div class="cp-market-vert-div"></div>
+                    <div class="cp-market-col col-24h">
+                        <div class="cp-market-24h">Last 24h change</div>
+                        <div class="cp-market-change" id="cpMarketChange">–</div>
+                    </div>
+                    <svg class="cp-market-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            </div>
+
+            <div class="cp-tx-history" id="cpTxHistory"></div>
+        </div>
+    </div>
+
+    <div id="cpAccountPopup" class="settings-overlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <span class="settings-title">Edit Account</span>
+                <button id="cpAccountPopupClose" class="settings-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-section">
+                    <div class="settings-section-title">Account Details</div>
+                    <div class="settings-row">
+                        <label>Name</label>
+                        <input id="cpAccountNameInput" type="text" placeholder="BTC Main" maxlength="30">
+                    </div>
+                    <div class="settings-row" style="flex-direction:column;gap:8px;align-items:stretch;padding:8px 0 12px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <label style="margin-bottom:0">Address</label>
+                            <button id="cpAccountRandBtn" class="cp-acct-rand-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                <span>Randomize</span>
+              </button>
+                        </div>
+                        <div class="cp-acct-addr-row">
+                            <input id="cpAccountAddrInput" type="text" placeholder="Enter custom address">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="cpAccountPopupSave" class="settings-confirm">
+        <span>Save</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#131214" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+        </div>
+    </div>
+
+    <div id="myLedgerPanel">
+        <style>
+            #myLedgerPanel {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #0a0a0a;
+                z-index: 210;
+                transform: translateX(100%);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                padding-top: env(safe-area-inset-top, 44px);
+                padding-right: env(safe-area-inset-right);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left)
+            }
+
+            #myLedgerPanel.ml-open {
+                transform: translateX(0)
+            }
+
+            .ml-header {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                padding: 14px 20px 14px;
+                min-height: 52px
+            }
+
+            .ml-back {
+                position: absolute;
+                left: 16px;
+                background: none;
+                border: none;
+                color: #fff;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            .ml-back:active {
+                opacity: .6
+            }
+
+            .ml-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: -.01em
+            }
+
+            .ml-body {
+                flex: 1;
+                padding: 12px 20px 0;
+                overflow-y: auto;
+                overflow-x: hidden
+            }
+
+            .ml-devices-label {
+                font-size: 17px;
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 16px
+            }
+
+            .ml-swipe-wrap {
+                position: relative;
+                margin-bottom: 10px;
+                border-radius: 12px;
+                overflow: hidden
+            }
+
+            .ml-swipe-inner {
+                display: flex;
+                transform: translateX(0)
+            }
+
+            .ml-device-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                background: rgba(255, 255, 255, .06);
+                border-radius: 0;
+                padding: 13px 14px;
+                margin-bottom: 0;
+                color: #fff;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                border: none;
+                flex-shrink: 0;
+                width: 100%;
+                box-sizing: border-box;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
+            }
+
+            .ml-device-item:active {
+                opacity: .6
+            }
+
+            .ml-delete-btn {
+                flex-shrink: 0;
+                width: 72px;
+                background: #e03131;
+                border: none;
+                color: #fff;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                -webkit-tap-highlight-color: transparent;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
+            }
+
+            .ml-device-item-icon {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0
+            }
+
+            .ml-device-item-name {
+                flex: 1;
+                font-size: 15px;
+                font-weight: 600;
+                text-align: left
+            }
+
+            .ml-device-item-chevron {
+                color: rgba(255, 255, 255, .35);
+                flex-shrink: 0
+            }
+
+            .ml-add-btn {
+                width: 100%;
+                box-sizing: border-box;
+                border: 1.5px dashed rgba(255, 255, 255, .22);
+                border-radius: 14px;
+                background: transparent;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 10px 18px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                -webkit-tap-highlight-color: transparent;
+                text-align: left
+            }
+
+            .ml-add-btn:active {
+                opacity: .6
+            }
+
+            .ml-add-plus {
+                font-size: 22px;
+                font-weight: 300;
+                line-height: 1;
+                color: #fff
+            }
+
+            .ml-footer {
+                padding: 0 20px calc(24px + env(safe-area-inset-bottom, 0px));
+                text-align: center;
+                font-size: 14px;
+                color: #fff;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
+            }
+
+            .ml-footer-link {
+                color: #b8aef8;
+                text-decoration: none
+            }
+        </style>
+        <div class="ml-header">
+            <button class="ml-back" id="myLedgerBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/></svg>
+      </button>
+            <span class="ml-title">My Ledger</span>
+        </div>
+        <div class="ml-body">
+            <div class="ml-devices-label">Devices</div>
+            <div id="mlDeviceList"></div>
+            <button class="ml-add-btn" id="mlAddBtn">
+        <span class="ml-add-plus">+</span>
+        <span>Add a Ledger</span>
+      </button>
+        </div>
+        <div class="ml-footer">
+            Need a new Ledger? <a class="ml-footer-link" id="mlBuyNowLink" href="#">Buy now</a>
+        </div>
+
+        <div id="mlBuySheet" class="settings-overlay" style="z-index:221">
+            <div class="settings-panel">
+                <div class="settings-header">
+                    <span class="settings-title">Set icon</span>
+                    <button id="mlBuySheetClose" class="settings-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+                </div>
+                <div class="settings-body">
+                    <div class="ml-icon-grid">
+                        <button class="ml-icon-option" data-src="./assets/devices/Stax.svg">
+              <img src="./assets/devices/Stax.svg" width="36" height="36" alt="Stax">
+              <span>Stax</span>
+            </button>
+                        <button class="ml-icon-option" data-src="./assets/devices/Flex.svg">
+              <img src="./assets/devices/Flex.svg" width="36" height="36" alt="Flex">
+              <span>Flex</span>
+            </button>
+                        <button class="ml-icon-option" data-src="./assets/devices/Gen5.svg">
+              <img src="./assets/devices/Gen5.svg" width="36" height="36" alt="Nano Gen 5">
+              <span>Nano Gen 5</span>
+            </button>
+                        <button class="ml-icon-option" data-src="./assets/devices/Nano.svg">
+              <img src="./assets/devices/Nano.svg" width="36" height="36" alt="Nano X">
+              <span>Nano X</span>
+            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .ml-icon-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                padding: 4px 0 16px
+            }
+
+            .ml-icon-option {
+                background: rgba(255, 255, 255, .06);
+                border: 1.5px solid rgba(255, 255, 255, .1);
+                border-radius: 16px;
+                color: #fff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                padding: 24px 16px;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+                box-sizing: border-box;
+                width: 100%
+            }
+
+            .ml-icon-option:active {
+                opacity: .6
+            }
+        </style>
+
+        <div id="mlDeviceSheet" class="settings-overlay" style="z-index:220">
+            <div class="settings-panel">
+                <div class="settings-header">
+                    <span class="settings-title">Choose your device</span>
+                    <button id="mlDeviceSheetClose" class="settings-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+                </div>
+                <div class="settings-body">
+                    <div class="settings-section">
+                        <button class="ml-device-row" data-device="Stax">
+              <span class="ml-device-name">Ledger Stax</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+                        <button class="ml-device-row" data-device="Flex">
+              <span class="ml-device-name">Ledger Flex</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+                        <button class="ml-device-row" data-device="Nano Gen5">
+              <span class="ml-device-name">Ledger Nano Gen 5</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+                        <button class="ml-device-row" data-device="Nano X">
+              <span class="ml-device-name">Ledger Nano X</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .ml-device-row {
+                width: 100%;
+                box-sizing: border-box;
+                background: none;
+                border: none;
+                border-bottom: 1px solid rgba(255, 255, 255, .06);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 14px 4px;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
+            }
+
+            .ml-device-row:last-child {
+                border-bottom: none
+            }
+
+            .ml-device-row:active {
+                opacity: .6
+            }
+
+            .ml-device-name {
+                font-size: 15px;
+                font-weight: 600
+            }
+        </style>
+
+        <div id="mlNameSheet" class="settings-overlay" style="z-index:222">
+            <div class="settings-panel">
+                <div class="settings-header">
+                    <span class="settings-title">Name your device</span>
+                    <button id="mlNameSheetClose" class="settings-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+                </div>
+                <div class="settings-body">
+                    <div class="settings-section">
+                        <div class="settings-row">
+                            <input id="mlDeviceNameInput" class="ao-input" type="text" placeholder="e.g. Ledger Stax D22B" maxlength="32" autocomplete="off" spellcheck="false" style="width:100%;letter-spacing:0;text-align:left;font-size:15px">
+                        </div>
+                    </div>
+                </div>
+                <button id="mlNameSheetConfirm" class="settings-confirm">
+          <span>Add device</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#131214" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== TRANSFER / RECEIVE FLOW ===================== -->
+    <div id="transferFlow">
+        <style>
+            /* Match the video: neutral pure-dark sheets (no warm/orange accent) */
+
+            /* No blur behind the sheet — just a slight dim of the home screen. */
+
+            #transferFlow .settings-overlay {
+                background: rgba(0, 0, 0, .45);
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none
+            }
+
+            #transferFlow .settings-panel {
+                background: #161618;
+                position: relative
+            }
+
+            #transferFlow .settings-header {
+                background: #161618;
+                border-bottom: none
+            }
+
+            /* drag handle (the line at the top) */
+
+            #transferFlow .settings-panel::before {
+                content: '';
+                position: absolute;
+                top: 9px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 5px;
+                border-radius: 3px;
+                background: rgba(255, 255, 255, .18);
+                z-index: 3
+            }
+
+            #transferFlow #transferSheet .settings-body {
+                padding-bottom: 26px
+            }
+
+            /* Transfer menu rows */
+
+            #transferFlow .tf-menu-row {
+                width: 100%;
+                box-sizing: border-box;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                background: none;
+                border: none;
+                padding: 18px 4px;
+                cursor: pointer;
+                color: #fff;
+                text-align: left;
+                -webkit-tap-highlight-color: transparent;
+                font-family: inherit
+            }
+
+            #transferFlow .tf-menu-row:active {
+                opacity: .6
+            }
+
+            #transferFlow .tf-menu-ic {
+                flex-shrink: 0;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: #252528;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff
+            }
+
+            #transferFlow .tf-menu-ic img {
+                width: 22px;
+                height: 22px
+            }
+
+            #transferFlow .tf-menu-col {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+                min-width: 0
+            }
+
+            #transferFlow .tf-menu-label {
+                font-size: 16px;
+                font-weight: 600;
+                color: #fff
+            }
+
+            #transferFlow .tf-menu-sub {
+                font-size: 13px;
+                color: #8f8f8f
+            }
+
+            /* Tall list sheet */
+
+            /* Select asset/network/account sheet starts just below the "% Today" pill */
+
+            #transferFlow .tf-tall {
+                height: calc(100% - 262px);
+                max-height: calc(100% - 262px);
+                display: flex;
+                flex-direction: column
+            }
+
+            #transferFlow .tf-head {
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                display: flex;
+                align-items: center;
+                padding: 18px 18px 2px;
+                background: #161618
+            }
+
+            #transferFlow .tf-head .settings-close {
+                margin-left: auto
+            }
+
+            #transferFlow .tf-back {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, .08);
+                border: none;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            #transferFlow .tf-back:active {
+                opacity: .6
+            }
+
+            #transferFlow .tf-title {
+                font-size: 24px;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: -.02em;
+                padding: 6px 20px 12px
+            }
+
+            #transferFlow .tf-head,
+            #transferFlow .tf-title {
+                touch-action: none
+            }
+
+            #transferFlow .tf-search {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: #252528;
+                border-radius: 12px;
+                padding: 11px 14px;
+                margin: 0 20px 6px;
+                color: #8f8f8f
+            }
+
+            #transferFlow .tf-search svg {
+                width: 18px;
+                height: 18px;
+                flex-shrink: 0
+            }
+
+            #transferFlow .tf-search input {
+                flex: 1;
+                background: none;
+                border: none;
+                outline: none;
+                color: #fff;
+                font-size: 15px;
+                font-family: inherit
+            }
+
+            #transferFlow .tf-search input::placeholder {
+                color: #7d7d7d
+            }
+
+            #transferFlow .tf-list {
+                flex: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                margin: 0 -4px
+            }
+
+            #transferFlow .tf-list::-webkit-scrollbar {
+                display: none
+            }
+
+            #transferFlow .tf-row {
+                width: 100%;
+                box-sizing: border-box;
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                background: none;
+                border: none;
+                padding: 12px 4px;
+                cursor: pointer;
+                color: #fff;
+                text-align: left;
+                -webkit-tap-highlight-color: transparent;
+                font-family: inherit
+            }
+
+            #transferFlow .tf-row:active {
+                opacity: .6
+            }
+
+            #transferFlow .tf-row-logo {
+                flex-shrink: 0;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                overflow: hidden;
+                background: #252528;
+                display: flex;
+                align-items: center;
+                justify-content: center
+            }
+
+            #transferFlow .tf-row-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover
+            }
+
+            #transferFlow .tf-row-mid {
+                flex: 1;
+                min-width: 0
+            }
+
+            #transferFlow .tf-row-name {
+                font-size: 16px;
+                font-weight: 600;
+                color: #fff;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis
+            }
+
+            #transferFlow .tf-row-sub {
+                font-size: 13.5px;
+                color: #8f8f8f;
+                margin-top: 1px;
+                display: flex;
+                align-items: center;
+                gap: 5px
+            }
+
+            #transferFlow .tf-row-sub .tf-badge {
+                width: 14px;
+                height: 14px;
+                border-radius: 50%
+            }
+
+            #transferFlow .tf-row-right {
+                flex-shrink: 0;
+                text-align: right
+            }
+
+            #transferFlow .tf-row-val {
+                font-size: 15.5px;
+                font-weight: 600;
+                color: #fff
+            }
+
+            #transferFlow .tf-row-amt {
+                font-size: 13.5px;
+                color: #8f8f8f;
+                margin-top: 1px
+            }
+
+            #transferFlow .tf-add-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid #262626;
+                border-radius: 14px;
+                background: none;
+                color: #fff;
+                padding: 15px 16px;
+                margin-top: 12px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                font-family: inherit;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            #transferFlow .tf-add-row:active {
+                opacity: .6
+            }
+
+            /* Receive full-screen panel */
+
+            #receivePanel {
+                position: fixed;
+                inset: 0;
+                background: #0e0e0f;
+                z-index: 230;
+                transform: translateX(100%);
+                transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+                display: flex;
+                flex-direction: column;
+                padding-top: calc(env(safe-area-inset-top, 44px) + 8px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+                will-change: transform
+            }
+
+            #receivePanel.rcv-open {
+                transform: translateX(0)
+            }
+
+            .rcv-header {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 16px 16px;
+                min-height: 48px
+            }
+
+            .rcv-title-wrap {
+                text-align: center
+            }
+
+            .rcv-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: -.01em
+            }
+
+            .rcv-sub {
+                font-size: 13px;
+                color: #8f8f8f;
+                margin-top: 2px
+            }
+
+            .rcv-header-right {
+                position: absolute;
+                right: 14px;
+                top: 6px;
+                display: flex;
+                align-items: center;
+                gap: 10px
+            }
+
+            .rcv-iconbtn {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: #1c1c1e;
+                border: none;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            .rcv-iconbtn:active {
+                opacity: .6
+            }
+
+            .rcv-iconbtn svg {
+                width: 18px;
+                height: 18px
+            }
+
+            .rcv-body {
+                flex: 1;
+                overflow-y: auto;
+                padding: 0 18px;
+                display: flex;
+                flex-direction: column;
+                align-items: center
+            }
+
+            .rcv-card {
+                width: 100%;
+                background: #1a1a1c;
+                border-radius: 20px;
+                padding: 22px 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 6px
+            }
+
+            .rcv-acct-name {
+                font-size: 16px;
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 18px
+            }
+
+            .rcv-qr-wrap {
+                position: relative;
+                width: 210px;
+                height: 210px;
+                background: #fff;
+                border-radius: 16px;
+                padding: 12px;
+                box-sizing: border-box
+            }
+
+            .rcv-qr {
+                width: 100%;
+                height: 100%
+            }
+
+            .rcv-qr svg {
+                display: block;
+                width: 100%;
+                height: 100%
+            }
+
+            .rcv-qr-logo {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                border: 4px solid #fff;
+                background: #fff;
+                object-fit: cover
+            }
+
+            .rcv-addr {
+                font-family: 'SF Mono', 'Roboto Mono', ui-monospace, Menlo, monospace;
+                font-size: 14px;
+                color: #d8d8d8;
+                text-align: center;
+                margin-top: 18px;
+                line-height: 1.5;
+                word-break: break-all;
+                max-width: 230px
+            }
+
+            .rcv-actions {
+                display: flex;
+                gap: 10px;
+                width: 100%;
+                margin-top: 16px
+            }
+
+            .rcv-share-btn {
+                flex-shrink: 0;
+                width: 54px;
+                height: 50px;
+                border-radius: 14px;
+                background: #1a1a1c;
+                border: none;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            .rcv-copy-btn {
+                flex: 1;
+                height: 50px;
+                border-radius: 14px;
+                background: #1a1a1c;
+                border: none;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                font-family: inherit;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            .rcv-share-btn:active,
+            .rcv-copy-btn:active {
+                opacity: .6
+            }
+
+            .rcv-share-btn svg,
+            .rcv-copy-btn svg {
+                width: 18px;
+                height: 18px
+            }
+
+            .rcv-warn {
+                font-size: 13px;
+                color: #7d7d7d;
+                text-align: center;
+                margin: 16px 8px 0;
+                line-height: 1.45;
+                max-width: 340px
+            }
+
+            /* toast */
+
+            #tfToast {
+                position: fixed;
+                left: 50%;
+                bottom: 90px;
+                transform: translateX(-50%) translateY(10px);
+                background: #2a2a2c;
+                color: #fff;
+                font-size: 14px;
+                font-weight: 600;
+                padding: 11px 18px;
+                border-radius: 12px;
+                z-index: 260;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .2s ease, transform .2s ease
+            }
+
+            #tfToast.show {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0)
+            }
+        </style>
+
+        <!-- 1. Transfer menu -->
+        <div id="transferSheet" class="settings-overlay" style="z-index:223">
+            <div class="settings-panel">
+                <div class="tf-head">
+                    <button id="transferSheetClose" class="settings-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+                </div>
+                <div class="tf-title" data-i18n="transfer.receive_title">Receive</div>
+                <div class="settings-body">
+                    <button class="tf-menu-row" data-tf="receive">
+            <span class="tf-menu-ic"><img src="./assets/icons/QR-Code.svg" alt=""></span>
+            <span class="tf-menu-label" data-i18n="transfer.via_crypto">Via crypto address</span>
+          </button>
+                    <button class="tf-menu-row" data-tf="bank">
+            <span class="tf-menu-ic"><img src="./assets/icons/bank.svg" alt=""></span>
+            <span class="tf-menu-col">
+              <span class="tf-menu-label" data-i18n="transfer.via_bank">Via bank transfer</span>
+              <span class="tf-menu-sub" data-i18n="transfer.bank_sub">Receive stablecoin by simply sending cash.</span>
+            </span>
+          </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2-4. Multi-step sheet: Select asset / network / account (content swapped) -->
+        <div id="tfSheet" class="settings-overlay" style="z-index:224">
+            <div class="settings-panel tf-tall">
+                <div class="tf-head">
+                    <button id="tfBack" class="tf-back" style="visibility:hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/></svg>
+          </button>
+                    <button id="tfClose" class="settings-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+                </div>
+                <div class="tf-title" id="tfSheetTitle" data-i18n="transfer.select_asset">Select asset</div>
+                <div class="tf-search" id="tfSearchWrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input id="tfSearch" type="text" data-i18n-placeholder="transfer.search_placeholder" placeholder="Search by name or address" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="settings-body tf-list" id="tfList"></div>
+            </div>
+        </div>
+
+        <!-- 5. Receive screen -->
+        <div id="receivePanel">
+            <div class="rcv-header">
+                <div class="rcv-title-wrap">
+                    <div class="rcv-title" id="rcvTitle">Receive</div>
+                    <div class="rcv-sub" id="rcvSub"></div>
+                </div>
+                <div class="rcv-header-right">
+                    <button class="rcv-iconbtn" id="rcvHelp" aria-label="Help">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2 2-2 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+          </button>
+                    <button class="rcv-iconbtn" id="rcvClose" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+                </div>
+            </div>
+            <div class="rcv-body">
+                <div class="rcv-card">
+                    <div class="rcv-acct-name" id="rcvAcctName">Account 1</div>
+                    <div class="rcv-qr-wrap">
+                        <div class="rcv-qr" id="rcvQr"></div>
+                        <img class="rcv-qr-logo" id="rcvQrLogo" src="" alt="">
+                    </div>
+                    <div class="rcv-addr" id="rcvAddr"></div>
+                </div>
+                <div class="rcv-actions">
+                    <button class="rcv-share-btn" id="rcvShare" aria-label="Share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          </button>
+                    <button class="rcv-copy-btn" id="rcvCopy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            <span data-i18n="transfer.copy_address">Copy address</span>
+          </button>
+                </div>
+                <div class="rcv-warn" id="rcvWarn"></div>
+            </div>
+        </div>
+
+        <!-- Send flow (Phantom-style 5-step). Steps rendered by js/send.js -->
+        <style>
+            #sendFlow {
+                position: fixed;
+                inset: 0;
+                background: #000;
+                z-index: 240;
+                transform: translateX(100%);
+                transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+                display: flex;
+                flex-direction: column;
+                padding-top: calc(env(safe-area-inset-top, 44px) + 8px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+                will-change: transform;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+            }
+
+            #sendFlow.sf-open {
+                transform: translateX(0)
+            }
+
+            #sendFlow .sf-header {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 56px 14px;
+                min-height: 44px
+            }
+
+            #sendFlow .sf-title-wrap {
+                text-align: center
+            }
+
+            #sendFlow .sf-step {
+                font-size: 13px;
+                color: #8e8e93;
+                font-weight: 500
+            }
+
+            #sendFlow .sf-title {
+                font-size: 19px;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: -.01em;
+                margin-top: 1px
+            }
+
+            #sendFlow .sf-back,
+            #sendFlow .sf-close {
+                position: absolute;
+                top: 6px;
+                width: 34px;
+                height: 34px;
+                border: none;
+                background: none;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            #sendFlow .sf-back {
+                left: 10px
+            }
+
+            #sendFlow .sf-close {
+                right: 14px
+            }
+
+            #sendFlow .sf-back:active,
+            #sendFlow .sf-close:active {
+                opacity: .5
+            }
+
+            #sendFlow .sf-back svg,
+            #sendFlow .sf-close svg {
+                width: 24px;
+                height: 24px
+            }
+
+            #sendFlow .sf-body {
+                flex: 1;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                padding: 0 18px
+            }
+
+            /* search */
+
+            #sendFlow .sf-search {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: #1c1c1e;
+                border-radius: 12px;
+                padding: 11px 14px;
+                margin: 6px 0 8px
+            }
+
+            #sendFlow .sf-search svg {
+                width: 18px;
+                height: 18px;
+                color: #8e8e93;
+                flex-shrink: 0
+            }
+
+            #sendFlow .sf-search input {
+                flex: 1;
+                background: none;
+                border: none;
+                outline: none;
+                color: #fff;
+                font-size: 16px;
+                font-family: inherit
+            }
+
+            #sendFlow .sf-search input::placeholder {
+                color: #6b6b70
+            }
+
+            /* account rows */
+
+            #sendFlow .sf-row {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                width: 100%;
+                box-sizing: border-box;
+                background: none;
+                border: none;
+                padding: 11px 2px;
+                cursor: pointer;
+                font-family: inherit;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            #sendFlow .sf-row:active {
+                opacity: .6
+            }
+
+            #sendFlow .sf-row-logo {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                flex-shrink: 0;
+                object-fit: cover;
+                background: #1c1c1e
+            }
+
+            #sendFlow .sf-row-mid {
+                flex: 1;
+                min-width: 0;
+                text-align: left
+            }
+
+            #sendFlow .sf-row-name {
+                font-size: 17px;
+                font-weight: 600;
+                color: #fff;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis
+            }
+
+            #sendFlow .sf-row-right {
+                flex-shrink: 0;
+                text-align: right
+            }
+
+            #sendFlow .sf-row-val {
+                font-size: 16px;
+                font-weight: 600;
+                color: #fff
+            }
+
+            #sendFlow .sf-row-amt {
+                font-size: 14px;
+                color: #8e8e93;
+                margin-top: 2px
+            }
+
+            /* generic inputs */
+
+            #sendFlow .sf-input {
+                width: 100%;
+                box-sizing: border-box;
+                background: none;
+                border: 1px solid #2a2a2c;
+                border-radius: 14px;
+                padding: 16px;
+                color: #fff;
+                font-size: 16px;
+                font-family: inherit;
+                outline: none;
+                display: flex;
+                align-items: center
+            }
+
+            #sendFlow .sf-input input {
+                flex: 1;
+                background: none;
+                border: none;
+                outline: none;
+                color: #fff;
+                font-size: 16px;
+                font-family: inherit
+            }
+
+            #sendFlow .sf-input input::placeholder {
+                color: #6b6b70
+            }
+
+            #sendFlow .sf-input .sf-paste {
+                background: none;
+                border: none;
+                color: #fff;
+                display: flex;
+                cursor: pointer;
+                padding: 0 0 0 8px
+            }
+
+            #sendFlow .sf-input .sf-paste svg {
+                width: 20px;
+                height: 20px
+            }
+
+            #sendFlow .sf-scan {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                width: 100%;
+                box-sizing: border-box;
+                background: none;
+                border: 1px solid #3a3a3c;
+                border-radius: 28px;
+                padding: 15px;
+                color: #fff;
+                font-size: 16px;
+                font-weight: 600;
+                font-family: inherit;
+                cursor: pointer;
+                margin-top: 4px
+            }
+
+            #sendFlow .sf-scan svg {
+                width: 22px;
+                height: 22px
+            }
+
+            #sendFlow .sf-or {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                color: #6b6b70;
+                font-size: 14px;
+                margin: 18px 0
+            }
+
+            #sendFlow .sf-or::before,
+            #sendFlow .sf-or::after {
+                content: "";
+                flex: 1;
+                height: 1px;
+                background: #262628
+            }
+
+            #sendFlow .sf-stack {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                margin-top: 6px
+            }
+
+            #sendFlow .sf-not-funded {
+                color: #ff9f0a;
+                font-size: 15px;
+                font-weight: 500;
+                margin: 8px 2px 0
+            }
+
+            #sendFlow .sf-banner {
+                display: flex;
+                gap: 12px;
+                align-items: flex-start;
+                background: #211f2e;
+                border-radius: 14px;
+                padding: 16px;
+                margin-top: 22px
+            }
+
+            #sendFlow .sf-banner svg {
+                width: 22px;
+                height: 22px;
+                color: #ab9ff2;
+                flex-shrink: 0;
+                margin-top: 1px
+            }
+
+            #sendFlow .sf-banner span {
+                color: #e7e5ee;
+                font-size: 15.5px;
+                line-height: 1.4;
+                font-weight: 500
+            }
+
+            /* amount step */
+
+            #sendFlow .sf-amt-wrap {
+                padding-top: 28px
+            }
+
+            #sendFlow .sf-amt-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px
+            }
+
+            #sendFlow .sf-amt-input {
+                flex: 1;
+                min-width: 0;
+                background: none;
+                border: none;
+                outline: none;
+                color: #fff;
+                font-size: 44px;
+                font-weight: 600;
+                font-family: inherit;
+                letter-spacing: -.02em
+            }
+
+            #sendFlow .sf-amt-input::placeholder {
+                color: #fff
+            }
+
+            #sendFlow .sf-amt-sym {
+                font-size: 38px;
+                font-weight: 700;
+                color: #8e8e93;
+                flex-shrink: 0
+            }
+
+            #sendFlow .sf-amt-line {
+                height: 1px;
+                background: #2a2a2c;
+                margin: 18px 0 22px
+            }
+
+            #sendFlow .sf-amt-fiat {
+                display: flex;
+                align-items: center;
+                justify-content: space-between
+            }
+
+            #sendFlow .sf-amt-fiat .v {
+                font-size: 30px;
+                font-weight: 600;
+                color: #fff
+            }
+
+            #sendFlow .sf-amt-fiat .c {
+                font-size: 30px;
+                font-weight: 700;
+                color: #8e8e93
+            }
+
+            #sendFlow .sf-avail-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 38px
+            }
+
+            #sendFlow .sf-avail {
+                color: #8e8e93;
+                font-size: 15px
+            }
+
+            #sendFlow .sf-avail b {
+                display: block;
+                color: #fff;
+                font-weight: 600;
+                margin-top: 2px;
+                font-size: 16px
+            }
+
+            #sendFlow .sf-max {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #8e8e93;
+                font-size: 15px
+            }
+
+            #sendFlow .sf-toggle {
+                width: 50px;
+                height: 30px;
+                border-radius: 15px;
+                background: #3a3a3c;
+                border: none;
+                position: relative;
+                cursor: pointer;
+                transition: background .2s;
+                flex-shrink: 0
+            }
+
+            #sendFlow .sf-toggle::after {
+                content: "";
+                position: absolute;
+                top: 3px;
+                left: 3px;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: #fff;
+                transition: transform .2s
+            }
+
+            #sendFlow .sf-toggle.on {
+                background: #34c759
+            }
+
+            #sendFlow .sf-toggle.on::after {
+                transform: translateX(20px)
+            }
+
+            /* summary */
+
+            #sendFlow .sf-sum-route {
+                display: flex;
+                flex-direction: column;
+                margin-top: 8px
+            }
+
+            #sendFlow .sf-sum-leg {
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+                position: relative
+            }
+
+            #sendFlow .sf-sum-ic {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: #1c1c1e;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                overflow: hidden
+            }
+
+            #sendFlow .sf-sum-ic img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover
+            }
+
+            #sendFlow .sf-sum-ic svg {
+                width: 22px;
+                height: 22px;
+                color: #ab9ff2
+            }
+
+            #sendFlow .sf-sum-leg.from {
+                padding-bottom: 26px
+            }
+
+            #sendFlow .sf-sum-leg.from::before {
+                content: "";
+                position: absolute;
+                left: 21px;
+                top: 46px;
+                bottom: 6px;
+                width: 1.5px;
+                background: #2a2a2c
+            }
+
+            #sendFlow .sf-sum-lbl {
+                color: #8e8e93;
+                font-size: 15px
+            }
+
+            #sendFlow .sf-sum-val {
+                color: #fff;
+                font-size: 17px;
+                font-weight: 600;
+                margin-top: 3px;
+                word-break: break-all
+            }
+
+            #sendFlow .sf-sum-edit {
+                color: #ab9ff2;
+                font-size: 16px;
+                font-weight: 600;
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-family: inherit
+            }
+
+            #sendFlow .sf-sum-divider {
+                height: 1px;
+                background: #1e1e20;
+                margin: 8px 0
+            }
+
+            #sendFlow .sf-sum-line {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                padding: 14px 0
+            }
+
+            #sendFlow .sf-sum-line .k {
+                color: #8e8e93;
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+                gap: 6px
+            }
+
+            #sendFlow .sf-sum-line .val {
+                text-align: right
+            }
+
+            #sendFlow .sf-sum-line .val .a {
+                color: #fff;
+                font-size: 17px;
+                font-weight: 600
+            }
+
+            #sendFlow .sf-sum-line .val .f {
+                color: #8e8e93;
+                font-size: 14px;
+                margin-top: 2px
+            }
+
+            /* footer / continue */
+
+            #sendFlow .sf-foot {
+                padding: 14px 18px calc(env(safe-area-inset-bottom, 0px) + 16px)
+            }
+
+            #sendFlow .sf-continue {
+                width: 100%;
+                border: none;
+                border-radius: 30px;
+                padding: 17px;
+                font-size: 17px;
+                font-weight: 600;
+                font-family: inherit;
+                cursor: pointer;
+                background: #fff;
+                color: #000;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            #sendFlow .sf-continue:disabled {
+                background: #1c1c1e;
+                color: #5a5a5e;
+                cursor: default
+            }
+
+            #sendFlow .sf-continue:not(:disabled):active {
+                opacity: .85
+            }
+
+            /* memo sheet */
+
+            #sendMemoSheet {
+                position: fixed;
+                inset: 0;
+                z-index: 245;
+                background: rgba(0, 0, 0, .55);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .25s ease;
+                display: flex;
+                align-items: flex-end
+            }
+
+            #sendMemoSheet.open {
+                opacity: 1;
+                pointer-events: auto
+            }
+
+            #sendMemoSheet .sf-sheet-panel {
+                width: 100%;
+                background: #1c1c1e;
+                border-radius: 24px 24px 0 0;
+                padding: 18px 22px calc(env(safe-area-inset-bottom, 0px) + 22px);
+                transform: translateY(100%);
+                transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+                text-align: center
+            }
+
+            #sendMemoSheet.open .sf-sheet-panel {
+                transform: translateY(0)
+            }
+
+            #sendMemoSheet .sf-sheet-close {
+                position: absolute;
+                right: 22px;
+                top: 18px;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: #3a3a3c;
+                border: none;
+                color: #fff;
+                font-size: 18px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center
+            }
+
+            #sendMemoSheet .sf-sheet-ic {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: #ab9ff2;
+                color: #1c1c1e;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 26px auto 18px
+            }
+
+            #sendMemoSheet .sf-sheet-ic svg {
+                width: 30px;
+                height: 30px
+            }
+
+            #sendMemoSheet .sf-sheet-title {
+                color: #fff;
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 12px
+            }
+
+            #sendMemoSheet .sf-sheet-text {
+                color: #b0b0b5;
+                font-size: 16px;
+                line-height: 1.45;
+                margin: 0 auto 26px;
+                max-width: 340px
+            }
+
+            #sendMemoSheet .sf-sheet-btn {
+                width: 100%;
+                border-radius: 30px;
+                padding: 16px;
+                font-size: 17px;
+                font-weight: 600;
+                font-family: inherit;
+                cursor: pointer;
+                margin-bottom: 12px;
+                background: none;
+                border: 1px solid #48484a;
+                color: #fff
+            }
+
+            #sendMemoSheet .sf-sheet-btn.primary {
+                background: #fff;
+                border-color: #fff;
+                color: #000
+            }
+
+            #sendMemoSheet .sf-sheet-btn:active {
+                opacity: .8
+            }
+
+            #sendMemoSheet .sf-sheet-link {
+                color: #ab9ff2;
+                font-size: 16px;
+                font-weight: 600;
+                margin-top: 6px
+            }
+        </style>
+
+        <div id="sendFlow">
+            <div class="sf-header">
+                <button class="sf-back" id="sendBack" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+                <div class="sf-title-wrap">
+                    <div class="sf-step" id="sendStep">Step 1 of 5</div>
+                    <div class="sf-title" id="sendTitle">Account to debit</div>
+                </div>
+                <button class="sf-close" id="sendClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+            </div>
+            <div class="sf-body" id="sendBody"></div>
+            <div class="sf-foot" id="sendFoot" style="display:none">
+                <button class="sf-continue" id="sendContinue" disabled>Continue</button>
+            </div>
+        </div>
+
+        <div id="sendMemoSheet">
+            <div class="sf-sheet-panel">
+                <button class="sf-sheet-close" id="sendMemoClose">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+                <div class="sf-sheet-ic">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="12" y1="7" x2="12" y2="7"/></svg>
+                </div>
+                <div class="sf-sheet-title">Don't use Tag/Memo?</div>
+                <div class="sf-sheet-text">Your funds will get lost if you don't add a Tag/Memo when sending them to any centralized exchange or custodial wallet.</div>
+                <button class="sf-sheet-btn primary" id="sendMemoAdd">Add tag</button>
+                <button class="sf-sheet-btn" id="sendMemoSkip">Don't add tag</button>
+                <div class="sf-sheet-link">Learn more about Tag/Memo</div>
+            </div>
+        </div>
+
+        <div id="tfToast"></div>
+    </div>
+
+    <!-- Market coin detail panel (Explore the market → tap a coin) -->
+    <div id="marketCoinPanel">
+        <div class="mcp-header" id="mcpHeader">
+            <div class="mcp-header-top">
+                <button class="mcp-back" id="mcpBackBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
+        </button>
+                <button class="mcp-star" id="mcpStarBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" viewBox="0 0 64 64" version="1.1" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><path id="star-empty" d="M37.675,26.643l18.335,0l-14.834,10.777l5.666,17.438l-14.833,-10.777l-14.834,10.777l5.666,-17.438l-14.833,-10.777l18.335,0l5.666,-17.438c1.888,5.813 3.777,11.625 5.666,17.438Zm-8.407,4.026l-8.869,0l7.175,5.213l-2.74,8.435l7.175,-5.213l7.175,5.213l-2.741,-8.435l7.175,-5.213l-8.869,0l-2.74,-8.434c-0.914,2.811 -1.827,5.623 -2.741,8.434Z" style="fill-rule:nonzero;"/></svg>
+        </button>
+            </div>
+            <div class="mcp-coin-row">
+                <div class="mcp-logo-wrap">
+                    <img class="mcp-logo-img" id="mcpLogoImg" src="" alt="">
+                    <div class="mcp-logo-fallback" id="mcpLogoFallback" style="display:none"></div>
+                </div>
+                <span class="mcp-coin-name" id="mcpCoinName">Bitcoin</span>
+            </div>
+            <div class="mcp-coin-row-spacer" id="mcpCoinRowSpacer"></div>
+            <div class="mcp-price" id="mcpPrice">$0.00</div>
+            <div class="mcp-change-row">
+                <span class="mcp-change-arrow" id="mcpChangeArrow"></span>
+                <span class="mcp-change-text" id="mcpChangeText">0.00%</span>
+            </div>
+        </div>
+
+        <div class="mcp-body">
+            <div class="mcp-chart-wrap" id="mcpChartWrap">
+                <svg id="mcpChartSvg" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="mcpChartGradient" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
+              <stop id="mcpGradStop1" offset="0%" stop-color="#619D55" stop-opacity="0.35"/>
+              <stop id="mcpGradStop2" offset="100%" stop-color="#619D55" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="mcpChartFill" d="" fill="url(#mcpChartGradient)" stroke="none"/>
+          <path id="mcpChartLine" d="" fill="none" stroke="#619D55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line id="mcpChartCross" x1="0" y1="0" x2="0" y2="0" stroke="rgba(255,255,255,0.25)" stroke-width="2" style="display:none"/>
+          <circle id="mcpChartDot" cx="0" cy="0" r="4.5" fill="white" stroke="#619D55" stroke-width="2" style="display:none"/>
+        </svg>
+            </div>
+            <div class="mcp-ranges">
+                <button class="mcp-range-btn active" data-days="1">1D</button>
+                <button class="mcp-range-btn" data-days="7">1W</button>
+                <button class="mcp-range-btn" data-days="30">1M</button>
+                <button class="mcp-range-btn" data-days="365">1Y</button>
+            </div>
+
+            <div class="mcp-actions">
+                <div class="mcp-actions-row">
+                    <button class="action-btn mcp-send-btn disabled" id="mcpSendBtn">
+            <div class="action-icon"><svg style="width:14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7.0902891 8.1352758"><g transform="translate(-107.31556,63.095403)"><path style="fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:square" d="m 110.8607,-55.453382 v -6.41939"/><path style="fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:square" d="m 108.02903,-59.550254 2.83167,-2.831674 2.83168,2.831674"/></g></svg></div>
+            <span data-i18n="btn.send">Send</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon"><svg style="width:14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7.0902972 8.1352673"><g transform="translate(-146.45722,63.0943)"><path style="fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:square" d="m 150.00236,-62.601042 v 6.41939"/><path style="fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:square" d="m 152.83403,-58.504172 -2.83167,2.83167 -2.83168,-2.83167"/></g></svg></div>
+            <span data-i18n="btn.receive">Receive</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon"><svg style="width:20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <span data-i18n="btn.buy">Buy</span>
+          </button>
+                </div>
+                <div class="mcp-actions-row">
+                    <button class="action-btn">
+            <div class="action-icon"><svg style="width:17px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9.2619267 9.1641369"><g transform="translate(-67.056976,63.561261)"><path style="fill:none;stroke:currentColor;stroke-width:0.914864;stroke-linecap:square" d="m 68.126493,-56.397359 h 7.318827 v -2.174819"/><path style="fill:none;stroke:currentColor;stroke-width:0.8;stroke-linecap:square" d="m 69.05378,-54.962805 -1.431115,-1.431116 1.361061,-1.361059"/><path style="fill:none;stroke:currentColor;stroke-width:0.914864;stroke-linecap:square" d="m 75.24939,-61.561017 h -7.318827 v 2.174819"/><path style="fill:none;stroke:currentColor;stroke-width:0.8;stroke-linecap:square" d="m 74.322103,-62.995571 1.431115,1.431116 -1.361061,1.361059"/></g></svg></div>
+            <span data-i18n="btn.swap">Swap</span>
+          </button>
+                    <button class="action-btn">
+            <div class="action-icon"><svg style="width:16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8.4324951 8.5025454"><g transform="translate(-184.96309,63.244564)"><ellipse style="fill:none;stroke:currentColor;stroke-width:1.009;stroke-linecap:square" cx="188.06917" cy="-59.467892" rx="2.6007502" ry="1.1062891"/><ellipse style="fill:none;stroke:currentColor;stroke-width:1.01657;stroke-linecap:square" cx="190.23703" cy="-61.633766" rx="2.6489246" ry="1.1025087"/><path style="fill:none;stroke:currentColor;stroke-width:0.933;stroke-linecap:square" d="m 185.4296,-59.095959 v 2.822829"/><path style="fill:none;stroke:currentColor;stroke-width:0.9;stroke-linecap:square" d="m 190.831,-59.747215 0.0101,3.456583"/></g></svg></div>
+            <span data-i18n="nav.earn">Earn</span>
+          </button>
+                </div>
+            </div>
+
+            <div class="mcp-stats">
+                <div class="mcp-stats-card">
+                    <div class="mcp-stats-section-label">PRICE STATISTICS</div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">Price</span>
+                        <div class="mcp-stat-val-wrap"><span class="mcp-stat-val" id="mcpStatPrice">–</span><span class="mcp-stat-sub mcp-stat-price-change" id="mcpStatPriceChange"></span></div>
+                    </div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">Trading Volume</span><span class="mcp-stat-val" id="mcpStatVolume">–</span></div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">24h Low / 24h High</span><span class="mcp-stat-val" id="mcpStat24hRange">– / –</span></div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">All time high</span>
+                        <div class="mcp-stat-val-wrap"><span class="mcp-stat-val" id="mcpStatAth">–</span><span class="mcp-stat-sub" id="mcpStatAthDate"></span></div>
+                    </div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">All time low</span>
+                        <div class="mcp-stat-val-wrap"><span class="mcp-stat-val" id="mcpStatAtl">–</span><span class="mcp-stat-sub" id="mcpStatAtlDate"></span></div>
+                    </div>
+                    <div class="mcp-stats-section-divider"></div>
+                    <div class="mcp-stats-section-label">MARKET CAP</div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">Market cap</span><span class="mcp-stat-val" id="mcpStatMarketCap">–</span></div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">Market cap rank</span><span class="mcp-stat-val" id="mcpStatRank">–</span></div>
+                    <div class="mcp-stats-section-divider"></div>
+                    <div class="mcp-stats-section-label">SUPPLY</div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">Circulating supply</span><span class="mcp-stat-val" id="mcpStatCirculating">–</span></div>
+                    <div class="mcp-stat-row"><span class="mcp-stat-name">Total supply</span><span class="mcp-stat-val" id="mcpStatTotalSupply">–</span></div>
+                    <div class="mcp-stat-row mcp-stat-row--last"><span class="mcp-stat-name">Max supply</span><span class="mcp-stat-val" id="mcpStatMaxSupply">–</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/license-check.js?v=1"></script>
+
+    <script src="./js/i18n.js?v=12"></script>
+    <script src="./js/ledger.js?v=85"></script>
+    <script src="./js/market.js?v=1"></script>
+    <script src="./js/qrcode.min.js"></script>
+    <script src="./js/transfer.js?v=1"></script>
+    <script src="./js/send.js?v=1"></script>
+    <script src="./js/p2p.js?v=1"></script>
+    <script src="./js/market-graph.js?v=3"></script>
+
+    <script>
+        (function() {
+            var el = document.getElementById('balanceDisplay');
+            if (!el) return;
+
+            var _cur = 0,
+                _busy = false;
+            var desc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+
+            function fmtParts(v) {
+                v = Math.max(0, v || 0);
+                var int = Math.floor(v);
+                var cents = Math.round((v - int) * 100);
+                if (cents >= 100) {
+                    int++;
+                    cents -= 100;
+                }
+                return {
+                    main: '$' + int.toLocaleString('en-US'),
+                    dec: '.' + String(cents).padStart(2, '0')
+                };
+            }
+
+            function makeSlot(oldCh, newCh, dir) {
+                var wrap = document.createElement('span');
+                wrap.style.cssText = 'display:inline-block;overflow:hidden;height:1em;line-height:1em;vertical-align:bottom';
+                var inner = document.createElement('span');
+                inner.style.cssText = 'display:block;will-change:transform';
+                var a = document.createElement('span');
+                a.style.cssText = 'display:block;line-height:1em;height:1em';
+                var b = document.createElement('span');
+                b.style.cssText = 'display:block;line-height:1em;height:1em';
+                if (dir >= 0) {
+                    // value went up: old on top, new below — slide up
+                    a.textContent = oldCh;
+                    b.textContent = newCh;
+                    inner.style.transform = 'translateY(0)';
+                } else {
+                    // value went down: new on top, old below — start showing old, slide down to new
+                    a.textContent = newCh;
+                    b.textContent = oldCh;
+                    inner.style.transform = 'translateY(-50%)';
+                }
+                inner.appendChild(a);
+                inner.appendChild(b);
+                wrap.appendChild(inner);
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        inner.style.transition = 'transform 0.7s cubic-bezier(0.22,1,0.36,1)';
+                        inner.style.transform = dir >= 0 ? 'translateY(-50%)' : 'translateY(0)';
+                    });
+                });
+                return wrap;
+            }
+
+            function buildSlots(oldVal, newVal) {
+                var dir = newVal >= oldVal ? 1 : -1;
+                var op = fmtParts(oldVal),
+                    np = fmtParts(newVal);
+                var frag = document.createDocumentFragment();
+
+                function addChars(oldStr, newStr, container) {
+                    if (oldStr.length === newStr.length) {
+                        for (var i = 0; i < newStr.length; i++) {
+                            if (oldStr[i] !== newStr[i] && /\d/.test(newStr[i])) {
+                                container.appendChild(makeSlot(oldStr[i], newStr[i], dir));
+                            } else {
+                                var s = document.createElement('span');
+                                s.textContent = newStr[i];
+                                container.appendChild(s);
+                            }
+                        }
+                    } else {
+                        var s2 = document.createElement('span');
+                        s2.textContent = newStr;
+                        container.appendChild(s2);
+                    }
+                }
+
+                addChars(op.main, np.main, frag);
+                var dec = document.createElement('span');
+                dec.className = 'balance-decimals';
+                addChars(op.dec, np.dec, dec);
+                frag.appendChild(dec);
+
+                _busy = true;
+                desc.set.call(el, '');
+                el.appendChild(frag);
+                _cur = newVal;
+                setTimeout(function() {
+                    _busy = false;
+                }, 800);
+            }
+
+            Object.defineProperty(el, 'innerHTML', {
+                get: desc.get,
+                set: function(val) {
+                    if (_busy) return;
+                    var old = _cur;
+                    desc.set.call(this, val);
+                    var next = parseFloat(this.textContent.replace(/[$,\s]/g, ''));
+                    if (isNaN(next)) next = 0;
+                    _cur = next;
+                    if (old > 0 && next > 0 && Math.abs(next - old) > 0.005) buildSlots(old, next);
+                },
+                configurable: true
+            });
+        })();
+
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var ls = document.getElementById('loading-screen');
+                if (!ls) return;
+                ls.classList.add('fade-out');
+                setTimeout(function() {
+                    ls.style.display = 'none';
+                }, 400);
+            }, 300);
+        });
+
+        (function() {
+            var ANIM = 'transform 0.35s cubic-bezier(0.22,1,0.36,1)';
+            var panel = document.getElementById('myLedgerPanel');
+            var scrollable = document.querySelector('.scrollable');
+            var deviceList = document.getElementById('mlDeviceList');
+            var headerBtn = document.querySelector('.header-left .header-btn');
+            var CHEVRON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" class="ml-device-item-chevron"><polyline points="9 18 15 12 9 6"/></svg>';
+
+            // ── Persistence ──────────────────────────────────────────────────────────
+            function getDeviceId() {
+                return localStorage.getItem('ll_device_id') || '';
+            }
+
+            function collectState() {
+                var devices = [];
+                deviceList.querySelectorAll('.ml-device-item').forEach(function(row) {
+                    devices.push({
+                        name: row.querySelector('.ml-device-item-name').textContent,
+                        icon: (row.querySelector('img') || {}).src || ''
+                    });
+                });
+                var headerImg = headerBtn.querySelector('img');
+                return {
+                    devices: devices,
+                    headerIcon: headerImg ? headerImg.getAttribute('src') : ''
+                };
+            }
+
+            function persistState() {
+                var did = getDeviceId();
+                if (!did) return;
+                fetch('/api/user-data/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Device-Id': did
+                    },
+                    body: JSON.stringify({
+                        data: collectState()
+                    })
+                }).catch(function() {});
+            }
+
+            var DEL_W = 72;
+
+            function closeOtherSwipes(except) {
+                deviceList.querySelectorAll('.ml-swipe-wrap').forEach(function(w) {
+                    if (w !== except && w._closeSwipe) w._closeSwipe();
+                });
+            }
+
+            function buildDeviceRow(name, iconSrc) {
+                var wrap = document.createElement('div');
+                wrap.className = 'ml-swipe-wrap';
+
+                var inner = document.createElement('div');
+                inner.className = 'ml-swipe-inner';
+
+                var row = document.createElement('button');
+                row.className = 'ml-device-item';
+                var iconHtml = iconSrc ? '<img src="' + iconSrc + '" class="ml-device-item-icon" alt="">' : '';
+                row.innerHTML = iconHtml + '<span class="ml-device-item-name">' + name + '</span>' + CHEVRON;
+
+                var del = document.createElement('button');
+                del.className = 'ml-delete-btn';
+                del.textContent = 'Delete';
+                del.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    wrap.style.transition = 'opacity .2s ease';
+                    wrap.style.opacity = '0';
+                    setTimeout(function() {
+                        wrap.remove();
+                        persistState();
+                    }, 210);
+                });
+
+                inner.appendChild(row);
+                inner.appendChild(del);
+                wrap.appendChild(inner);
+
+                // ── Swipe to reveal delete ──────────────────────────────────────────
+                var startX = 0,
+                    startY = 0,
+                    dragging = false,
+                    isOpen = false;
+
+                inner.addEventListener('touchstart', function(e) {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                    dragging = false;
+                    inner.style.transition = 'none';
+                }, {
+                    passive: true
+                });
+
+                inner.addEventListener('touchmove', function(e) {
+                    var dx = e.touches[0].clientX - startX;
+                    var dy = e.touches[0].clientY - startY;
+                    if (!dragging && Math.abs(dx) < Math.abs(dy)) return;
+                    dragging = true;
+                    e.preventDefault();
+                    var base = isOpen ? -DEL_W : 0;
+                    var tx = Math.max(-DEL_W, Math.min(0, base + dx));
+                    inner.style.transform = 'translateX(' + tx + 'px)';
+                }, {
+                    passive: false
+                });
+
+                inner.addEventListener('touchend', function(e) {
+                    if (!dragging) return;
+                    var dx = e.changedTouches[0].clientX - startX;
+                    inner.style.transition = 'transform .3s cubic-bezier(0.22,1,0.36,1)';
+                    if (!isOpen && dx < -36) {
+                        inner.style.transform = 'translateX(-' + DEL_W + 'px)';
+                        isOpen = true;
+                        closeOtherSwipes(wrap);
+                    } else if (isOpen && dx > 20) {
+                        inner.style.transform = 'translateX(0)';
+                        isOpen = false;
+                    } else {
+                        inner.style.transform = isOpen ? 'translateX(-' + DEL_W + 'px)' : 'translateX(0)';
+                    }
+                }, {
+                    passive: true
+                });
+
+                wrap._closeSwipe = function() {
+                    inner.style.transition = 'transform .3s cubic-bezier(0.22,1,0.36,1)';
+                    inner.style.transform = 'translateX(0)';
+                    isOpen = false;
+                };
+
+                return wrap;
+            }
+
+            function restoreState(data) {
+                if (!data) return;
+                if (data.headerIcon) {
+                    headerBtn.innerHTML = '<img src="' + data.headerIcon + '" width="24" height="24" alt="" style="display:block">';
+                }
+                if (Array.isArray(data.devices)) {
+                    deviceList.innerHTML = '';
+                    data.devices.forEach(function(d) {
+                        deviceList.appendChild(buildDeviceRow(d.name, d.icon));
+                    });
+                }
+            }
+
+            // Load on startup once license is confirmed
+            window.addEventListener('load', function() {
+                var did = getDeviceId();
+                if (!did || localStorage.getItem('license_activated') !== 'true') return;
+                fetch('/api/user-data/load', {
+                        headers: {
+                            'X-Device-Id': did
+                        }
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(r) {
+                        if (r && r.data) restoreState(r.data);
+                    })
+                    .catch(function() {});
+            });
+
+            // ── Panel open / close ────────────────────────────────────────────────────
+            function openMyLedger() {
+                panel.style.transition = ANIM;
+                panel.classList.add('ml-open');
+                if (scrollable) {
+                    scrollable.style.transition = ANIM;
+                    scrollable.style.transform = 'translateX(-25%)';
+                }
+            }
+
+            function closeMyLedger() {
+                panel.style.transition = ANIM;
+                panel.classList.remove('ml-open');
+                if (scrollable) {
+                    scrollable.style.transition = ANIM;
+                    scrollable.style.transform = '';
+                }
+                deviceList.querySelectorAll('.ml-swipe-wrap').forEach(function(w) {
+                    if (w._closeSwipe) w._closeSwipe();
+                });
+            }
+
+            document.querySelector('.header-left .header-btn').addEventListener('click', openMyLedger);
+            document.getElementById('myLedgerBack').addEventListener('click', closeMyLedger);
+
+            // ── Device picker sheet ───────────────────────────────────────────────────
+            var sheet = document.getElementById('mlDeviceSheet');
+
+            function openSheet() {
+                sheet.classList.add('open');
+            }
+
+            function closeSheet() {
+                sheet.classList.remove('open');
+            }
+            document.getElementById('mlAddBtn').addEventListener('click', openSheet);
+            document.getElementById('mlDeviceSheetClose').addEventListener('click', closeSheet);
+            sheet.addEventListener('click', function(e) {
+                if (e.target === sheet) closeSheet();
+            });
+
+            // ── Name sheet ────────────────────────────────────────────────────────────
+            var nameSheet = document.getElementById('mlNameSheet');
+            var nameInput = document.getElementById('mlDeviceNameInput');
+            var pendingDevice = {
+                label: '',
+                icon: ''
+            };
+            var deviceIconMap = {
+                'Stax': './assets/devices/Stax.svg',
+                'Flex': './assets/devices/Flex.svg',
+                'Nano Gen5': './assets/devices/Gen5.svg',
+                'Nano X': './assets/devices/Nano.svg'
+            };
+
+            function openNameSheet(deviceKey, deviceLabel) {
+                pendingDevice = {
+                    label: deviceLabel,
+                    icon: deviceIconMap[deviceKey] || ''
+                };
+                nameInput.value = '';
+                nameInput.placeholder = deviceLabel;
+                closeSheet();
+                nameSheet.classList.add('open');
+                setTimeout(function() {
+                    nameInput.focus();
+                }, 350);
+            }
+
+            function closeNameSheet() {
+                nameSheet.classList.remove('open');
+                nameInput.blur();
+            }
+
+            document.querySelectorAll('.ml-device-row').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    openNameSheet(this.getAttribute('data-device'), this.querySelector('.ml-device-name').textContent);
+                });
+            });
+            document.getElementById('mlNameSheetClose').addEventListener('click', closeNameSheet);
+            nameSheet.addEventListener('click', function(e) {
+                if (e.target === nameSheet) closeNameSheet();
+            });
+
+            document.getElementById('mlNameSheetConfirm').addEventListener('click', function() {
+                var name = nameInput.value.trim() || pendingDevice.label;
+                deviceList.appendChild(buildDeviceRow(name, pendingDevice.icon));
+                closeNameSheet();
+                closeSheet();
+                persistState();
+            });
+
+            // ── Buy now / icon picker sheet ───────────────────────────────────────────
+            var buySheet = document.getElementById('mlBuySheet');
+            document.getElementById('mlBuyNowLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                buySheet.classList.add('open');
+            });
+            document.getElementById('mlBuySheetClose').addEventListener('click', function() {
+                buySheet.classList.remove('open');
+            });
+            buySheet.addEventListener('click', function(e) {
+                if (e.target === buySheet) buySheet.classList.remove('open');
+            });
+            document.querySelectorAll('.ml-icon-option').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var src = this.getAttribute('data-src');
+                    headerBtn.innerHTML = '<img src="' + src + '" width="24" height="24" alt="" style="display:block">';
+                    buySheet.classList.remove('open');
+                    closeMyLedger();
+                    persistState();
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

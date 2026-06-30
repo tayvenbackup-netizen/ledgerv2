@@ -1,0 +1,1 @@
+{"name":"Larp Ledger","short_name":"Ledger","start_url":"/","scope":"/","display":"standalone","orientation":"portrait","icons":[{"src":"./assets/ledger-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"./assets/ledger-192.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
