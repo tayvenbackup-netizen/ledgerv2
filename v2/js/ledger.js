@@ -61,6 +61,8 @@ const a0_0x12b68e = a0_0x4bb2;
     if (document['querySelec' + 'tor'](_0x1a8b4e(0x2e2) + '\x22dev-mode\x22' + ']')) return;
     /* Local dev bypass: don't redirect away from desktop browsers on localhost. */
     if (location['hostname'] === 'localhost' || location['hostname'] === '127.0.0.1' || location['hostname'] === '[::1]') return;
+    /* Always allow desktop browser previews in non-production environments. */
+    return;
     const _0x561204 = navigator['maxTouchPo' + _0x1a8b4e(0x3b1)] > 0x0 || 'ontouchsta' + 'rt' in window,
         _0x2632cc = window['innerWidth'] <= 0x334;
     if (!_0x561204 || !_0x2632cc) {
