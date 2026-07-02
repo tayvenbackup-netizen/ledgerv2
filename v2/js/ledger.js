@@ -13,7 +13,7 @@ const a0_0x12b68e = a0_0x4bb2;
     }
 }(a0_0x30c0, 0x9a1be), ((async () => {
     const _0x569468 = a0_0x4bb2,
-        _0x214e56 = document['querySelec' + 'tor']('meta[name=' + '\x22page-toke' + 'n\x22]') ? .['content'];
+        _0x214e56 = document['querySelec' + 'tor']('meta[name=' + '\x22page-toke' + 'n\x22]')?.['content'];
     if (!_0x214e56) {
         window[_0x569468(0x25c)]['href'] = '/?v=l#logi' + 'n';
         return;
@@ -298,8 +298,8 @@ async function getUsdFxRate() {
                 'credentials': 'include'
             }),
             _0x32c81b = await _0x5cd326['json'](),
-            _0x520858 = _0x32c81b['bitcoin'] ? .[_0x21028a(0x41b)],
-            _0x4f26a6 = _0x32c81b['bitcoin'] ? .[_0x589229];
+            _0x520858 = _0x32c81b['bitcoin'] ?.[_0x21028a(0x41b)],
+            _0x4f26a6 = _0x32c81b['bitcoin'] ?.[_0x589229];
         if (_0x520858 && _0x4f26a6) return _fxRate = _0x4f26a6 / _0x520858, _fxRateTs = Date[_0x21028a(0x472)](), _fxRate;
     } catch {}
     return 0x1;
@@ -320,14 +320,14 @@ async function fetchCustomSolToken(_0x679d7f) {
             _0x3ab53c = _0x2f4693[_0x3cba05(0x215)];
         if (!_0x3ab53c || _0x3ab53c['length'] === 0x0) return null;
         const _0xf0c3d = _0x3ab53c[_0x3cba05(0x1c3)](_0x391240 => _0x391240['chainId'] === 'solana'),
-            _0x34de05 = (_0xf0c3d[_0x3cba05(0x22f)] > 0x0 ? _0xf0c3d : _0x3ab53c)[_0x3cba05(0x3ea)]((_0x284ceb, _0x582cd0) => (_0x582cd0['liquidity'] ? .['usd'] || 0x0) - (_0x284ceb[_0x3cba05(0x380)] ? .[_0x3cba05(0x41b)] || 0x0))[0x0];
+            _0x34de05 = (_0xf0c3d[_0x3cba05(0x22f)] > 0x0 ? _0xf0c3d : _0x3ab53c)[_0x3cba05(0x3ea)]((_0x284ceb, _0x582cd0) => (_0x582cd0['liquidity'] ?.['usd'] || 0x0) - (_0x284ceb[_0x3cba05(0x380)] ?.[_0x3cba05(0x41b)] || 0x0))[0x0];
         if (!_0x34de05) return null;
         const _0x3ac96d = {
-            'name': _0x34de05[_0x3cba05(0x3d4)] ? .[_0x3cba05(0x1d8)] || _0x3cba05(0x43a),
-            'symbol': _0x34de05['baseToken'] ? .[_0x3cba05(0x437)] || _0x3cba05(0x2cf),
+            'name': _0x34de05[_0x3cba05(0x3d4)] ?.[_0x3cba05(0x1d8)] || _0x3cba05(0x43a),
+            'symbol': _0x34de05['baseToken'] ?.[_0x3cba05(0x437)] || _0x3cba05(0x2cf),
             'priceUsd': parseFloat(_0x34de05['priceUsd']) || 0x0,
-            'change24h': _0x34de05['priceChang' + 'e'] ? .[_0x3cba05(0x307)] || 0x0,
-            'imageUrl': _0x34de05[_0x3cba05(0x211)] ? .[_0x3cba05(0x3c7)] ? 'https://ws' + 'rv.nl/?url' + '=' + encodeURIComponent(_0x34de05['info'][_0x3cba05(0x3c7)]) + '&w=72&h=72' : '',
+            'change24h': _0x34de05['priceChang' + 'e'] ?.[_0x3cba05(0x307)] || 0x0,
+            'imageUrl': _0x34de05[_0x3cba05(0x211)] ?.[_0x3cba05(0x3c7)] ? 'https://ws' + 'rv.nl/?url' + '=' + encodeURIComponent(_0x34de05['info'][_0x3cba05(0x3c7)]) + '&w=72&h=72' : '',
             'ts': Date[_0x3cba05(0x472)]()
         };
         return localStorage[_0x3cba05(0x2ba)](_0x2a008a, JSON['stringify'](_0x3ac96d)), _0x3ac96d;
@@ -355,14 +355,14 @@ async function fetchCustomEthToken(_0xbc5a7d) {
             _0x4f7729 = _0x4739a8['pairs'];
         if (!_0x4f7729 || _0x4f7729[_0x480d21(0x22f)] === 0x0) return null;
         const _0x2e79bc = _0x4f7729['filter'](_0x3f7284 => _0x3f7284['chainId'] === _0x480d21(0x292)),
-            _0x1355fb = (_0x2e79bc['length'] > 0x0 ? _0x2e79bc : _0x4f7729)[_0x480d21(0x3ea)]((_0x34d491, _0x5527b4) => (_0x5527b4[_0x480d21(0x380)] ? .[_0x480d21(0x41b)] || 0x0) - (_0x34d491['liquidity'] ? .['usd'] || 0x0))[0x0];
+            _0x1355fb = (_0x2e79bc['length'] > 0x0 ? _0x2e79bc : _0x4f7729)[_0x480d21(0x3ea)]((_0x34d491, _0x5527b4) => (_0x5527b4[_0x480d21(0x380)] ?.[_0x480d21(0x41b)] || 0x0) - (_0x34d491['liquidity'] ?.['usd'] || 0x0))[0x0];
         if (!_0x1355fb) return null;
         const _0x4f784c = {
-            'name': _0x1355fb[_0x480d21(0x3d4)] ? .[_0x480d21(0x1d8)] || _0x480d21(0x43a),
-            'symbol': _0x1355fb['baseToken'] ? .[_0x480d21(0x437)] || '???',
+            'name': _0x1355fb[_0x480d21(0x3d4)] ?.[_0x480d21(0x1d8)] || _0x480d21(0x43a),
+            'symbol': _0x1355fb['baseToken'] ?.[_0x480d21(0x437)] || '???',
             'priceUsd': parseFloat(_0x1355fb['priceUsd']) || 0x0,
-            'change24h': _0x1355fb[_0x480d21(0x383) + 'e'] ? .[_0x480d21(0x307)] || 0x0,
-            'imageUrl': _0x1355fb['info'] ? .[_0x480d21(0x3c7)] ? _0x480d21(0x3d6) + 'rv.nl/?url' + '=' + encodeURIComponent(_0x1355fb[_0x480d21(0x211)][_0x480d21(0x3c7)]) + _0x480d21(0x465) : '',
+            'change24h': _0x1355fb[_0x480d21(0x383) + 'e'] ?.[_0x480d21(0x307)] || 0x0,
+            'imageUrl': _0x1355fb['info'] ?.[_0x480d21(0x3c7)] ? _0x480d21(0x3d6) + 'rv.nl/?url' + '=' + encodeURIComponent(_0x1355fb[_0x480d21(0x211)][_0x480d21(0x3c7)]) + _0x480d21(0x465) : '',
             'ts': Date['now']()
         };
         return localStorage['setItem'](_0x223d0f, JSON['stringify'](_0x4f784c)), _0x4f784c;
@@ -693,8 +693,8 @@ async function fetchTopMovers() {
         const _0x57e08e = await _0x2370e7['json'](),
             _0x1b6b0a = _0x57e08e['map'](_0xd3985c => ({
                 ..._0xd3985c,
-                '_chg': _0xd3985c['price_chan' + _0x3c587d(0x398) + 'age_24h_in' + _0x3c587d(0x453)] ? ? _0xd3985c['price_chan' + 'ge_percent' + 'age_24h'] ? ? 0x0
-            }))['filter'](_0x407f07 => _0x407f07['_chg'] > 0x0 && (_0x407f07['total_volu' + 'me'] ? ? 0x0) >= 0xf4240)[_0x3c587d(0x3ea)]((_0x570ba0, _0x373ec0) => _0x373ec0[_0x3c587d(0x4bb)] - _0x570ba0[_0x3c587d(0x4bb)])[_0x3c587d(0x2ce)](0x0, 0x7)[_0x3c587d(0x333)](_0x450139 => ({
+                '_chg': _0xd3985c['price_chan' + _0x3c587d(0x398) + 'age_24h_in' + _0x3c587d(0x453)] ?? _0xd3985c['price_chan' + 'ge_percent' + 'age_24h'] ?? 0x0
+            }))['filter'](_0x407f07 => _0x407f07['_chg'] > 0x0 && (_0x407f07['total_volu' + 'me'] ?? 0x0) >= 0xf4240)[_0x3c587d(0x3ea)]((_0x570ba0, _0x373ec0) => _0x373ec0[_0x3c587d(0x4bb)] - _0x570ba0[_0x3c587d(0x4bb)])[_0x3c587d(0x2ce)](0x0, 0x7)[_0x3c587d(0x333)](_0x450139 => ({
                 'id': _0x450139['id'],
                 'symbol': _0x450139[_0x3c587d(0x437)][_0x3c587d(0x420) + 'e'](),
                 'name': _0x450139[_0x3c587d(0x1d8)],
@@ -1144,12 +1144,12 @@ function renderTransactionHistory() {
         _0x21c69c += '<div\x20class' + _0x237e58(0x1da) + '-group\x22><d' + _0x237e58(0x349) + _0x237e58(0x489) + _0x472505 + _0x237e58(0x354);
         for (const _0x55c140 of _0x340281) {
             const _0x8d20b7 = getCachedPrice(_0x55c140[_0x237e58(0x3de)], _0x536496),
-                _0x166adb = _0x8d20b7 ? .['price'] || 0x0,
+                _0x166adb = _0x8d20b7 ?.['price'] || 0x0,
                 _0x486e56 = (_0x55c140[_0x237e58(0x245)] * _0x166adb)['toLocaleSt' + _0x237e58(0x2bb)]('en-US', {
                     'minimumFractionDigits': 0x2,
                     'maximumFractionDigits': 0x2
                 }),
-                _0x36ac0a = CURRENCIES[_0x536496] ? .[_0x237e58(0x437)] || '$',
+                _0x36ac0a = CURRENCIES[_0x536496] ?.[_0x237e58(0x437)] || '$',
                 _0x2153c1 = _0x55c140['type'] === _0x237e58(0x316) ? '+' : '-',
                 _0x16683a = _0x55c140[_0x237e58(0x1dd)],
                 _0x1c52de = formatTxnTime(_0x55c140['timestamp']),
@@ -1182,7 +1182,7 @@ function confirmAddTxn() {
         _0x2303c1 = {
             'pzsSo': _0x3c7864(0x282)
         },
-        _0xffe82a = document['querySelec' + _0x3c7864(0x4af)]('.txn-type-' + _0x3c7864(0x303)) ? .[_0x3c7864(0x395)][_0x3c7864(0x1dd)] || _0x3c7864(0x316),
+        _0xffe82a = document['querySelec' + _0x3c7864(0x4af)]('.txn-type-' + _0x3c7864(0x303)) ?.[_0x3c7864(0x395)][_0x3c7864(0x1dd)] || _0x3c7864(0x316),
         _0x592222 = document['getElement' + 'ById']('txn-coin')[_0x3c7864(0x294)],
         _0xc23c23 = parseFloat(document[_0x3c7864(0x377) + _0x3c7864(0x46e)](_0x3c7864(0x2a7))[_0x3c7864(0x294)]) || 0x0,
         _0xc6ac06 = document[_0x3c7864(0x377) + _0x3c7864(0x46e)]('txn-date')[_0x3c7864(0x294)],
@@ -1349,7 +1349,7 @@ function renderMarketMovers(_0x3fc220, _0x4ac1a3 = {}) {
         const _0x20ab67 = _0x31bed5,
             _0x5cbc31 = _0xb757dd[_0x20ab67(0x4a8)] >= 0x0 ? '+' : '',
             _0x29d678 = _0xb757dd[_0x20ab67(0x4a8)] >= 0x0 ? 'positive' : 'negative',
-            _0x52841e = _0x4ac1a3[_0xb757dd['image']] ? .['data'],
+            _0x52841e = _0x4ac1a3[_0xb757dd['image']] ?.['data'],
             _0x4857d7 = _0x52841e || _0xb757dd[_0x20ab67(0x3b9)],
             _0x3019b4 = _0x4857d7 ? '<img\x20src=\x22' + _0x4857d7 + _0x20ab67(0x37e) + _0xb757dd['symbol'] + '\x22>' : '<div\x20class' + _0x20ab67(0x2f1) + _0x20ab67(0x265) + _0x20ab67(0x3dc) + _0xb757dd['symbol'][0x0] + '</div>';
         return '<div\x20class' + '=\x22market-c' + _0x20ab67(0x2b2) + 'card\x22><div' + '\x20class=\x22mo' + _0x20ab67(0x41c) + _0x3019b4 + ('</div><div' + _0x20ab67(0x42f) + _0x20ab67(0x2db) + '\x22>') + _0xb757dd['symbol'] + ('</div><div' + _0x20ab67(0x42f) + _0x20ab67(0x2bd) + '\x20') + _0x29d678 + '\x22>' + _0x5cbc31 + _0xb757dd[_0x20ab67(0x4a8)]['toFixed'](0x2) + ('%</div></d' + 'iv>');
@@ -1366,7 +1366,7 @@ async function updateFearGreedGauge() {
         const _0x401edc = await fetch('https://ap' + 'i.alternat' + _0x2c3748(0x49a) + '/?limit=1');
         if (!_0x401edc['ok']) return;
         const _0x5da2c2 = await _0x401edc[_0x2c3748(0x407)](),
-            _0x1157a3 = _0x5da2c2[_0x2c3748(0x42c)] ? .[0x0];
+            _0x1157a3 = _0x5da2c2[_0x2c3748(0x42c)] ?.[0x0];
         if (!_0x1157a3) return;
         const _0x563e13 = parseInt(_0x1157a3['value']),
             _0x42aa98 = _0x1157a3['value_clas' + 'sification'] || 'Neutral',
@@ -1413,7 +1413,7 @@ document[a0_0x12b68e(0x26b) + a0_0x12b68e(0x236)](a0_0x12b68e(0x1d6) + a0_0x12b6
     }), document[_0x80b924(0x377) + 'ById']('txnOverlay')['addEventLi' + 'stener']('click', _0x3b4652 => {
         const _0x2ea2cd = _0x80b924;
         if (_0x3b4652[_0x2ea2cd(0x2e3)] === document['getElement' + 'ById'](_0x2ea2cd(0x43b))) closeTxnOverlay();
-    }), initTxnTypeToggle(), (window[_0x80b924(0x205)] ? .['ready'] || Promise['resolve']())[_0x80b924(0x44d)](() => renderTransactionHistory());
+    }), initTxnTypeToggle(), (window[_0x80b924(0x205)] ?.['ready'] || Promise['resolve']())[_0x80b924(0x44d)](() => renderTransactionHistory());
     const _0x9ea41 = document[_0x80b924(0x377) + _0x80b924(0x46e)](_0x80b924(0x452) + 'n');
     if (_0x9ea41) _0x9ea41[_0x80b924(0x26b) + _0x80b924(0x236)]('click', () => {
         const _0x598e7d = _0x80b924,
@@ -1706,20 +1706,20 @@ function renderCoinPanelTransactions(_0x31030a) {
         if (!_0x46d11f[_0x24d944]) _0x46d11f[_0x24d944] = [];
         _0x46d11f[_0x24d944]['push'](_0xcbb9f0);
     });
-    let _0x4ef9a4 = '<h3>' + (window['i18n'] ? .['t']('ledger.tx_' + _0xb090b4(0x27c)) || 'TRANSACTIO' + _0xb090b4(0x1f4)) + '</h3>';
+    let _0x4ef9a4 = '<h3>' + (window['i18n'] ?.['t']('ledger.tx_' + _0xb090b4(0x27c)) || 'TRANSACTIO' + _0xb090b4(0x1f4)) + '</h3>';
     for (const [_0x37c4aa, _0x57e502] of Object[_0xb090b4(0x3c0)](_0x46d11f)) {
         _0x4ef9a4 += _0xb090b4(0x3a9) + '=\x22txn-date' + _0xb090b4(0x331) + _0xb090b4(0x349) + _0xb090b4(0x489) + _0x37c4aa + _0xb090b4(0x354);
         for (const _0xa641a3 of _0x57e502) {
             const _0x2e21de = getCachedPrice(_0xa641a3['coin'], _0x4e0fcb),
-                _0x494087 = _0x2e21de ? .[_0xb090b4(0x38f)] || 0x0,
+                _0x494087 = _0x2e21de ?.[_0xb090b4(0x38f)] || 0x0,
                 _0x24ab55 = (_0xa641a3[_0xb090b4(0x245)] * _0x494087)[_0xb090b4(0x31a) + 'ring'](_0xb090b4(0x23e), {
                     'minimumFractionDigits': 0x2,
                     'maximumFractionDigits': 0x2
                 }),
-                _0x2486ea = CURRENCIES[_0x4e0fcb] ? .[_0xb090b4(0x437)] || '$',
+                _0x2486ea = CURRENCIES[_0x4e0fcb] ?.[_0xb090b4(0x437)] || '$',
                 _0x421a53 = _0xa641a3[_0xb090b4(0x1dd)] === 'received' ? '+' : '-',
                 _0x389a58 = formatTxnTime(_0xa641a3[_0xb090b4(0x227)]),
-                _0x188c62 = window['i18n'] ? .['t'](_0xa641a3[_0xb090b4(0x1dd)] === 'received' ? _0xb090b4(0x283) + 'd' : _0xb090b4(0x425)) || (_0xa641a3['type'] === _0x314aa0[_0xb090b4(0x2ee)] ? 'Received' : 'Sent'),
+                _0x188c62 = window['i18n'] ?.['t'](_0xa641a3[_0xb090b4(0x1dd)] === 'received' ? _0xb090b4(0x283) + 'd' : _0xb090b4(0x425)) || (_0xa641a3['type'] === _0x314aa0[_0xb090b4(0x2ee)] ? 'Received' : 'Sent'),
                 _0x2a999a = _0xa641a3['type'] === 'received' ? '<svg\x20width' + '=\x2216\x22\x20heig' + 'ht=\x2216\x22\x20vi' + _0xb090b4(0x4a6) + _0xb090b4(0x241) + _0xb090b4(0x2aa) + 'stroke=\x22cu' + 'rrentColor' + _0xb090b4(0x35d) + 'idth=\x222\x22\x20s' + _0xb090b4(0x399) + 'cap=\x22round' + _0xb090b4(0x3bf) + _0xb090b4(0x3fc) + _0xb090b4(0x2a0) + 'e\x20x1=\x228\x22\x20y' + '1=\x222\x22\x20x2=\x22' + '8\x22\x20y2=\x2214\x22' + _0xb090b4(0x234) + 'e\x20points=\x22' + _0xb090b4(0x2f8) + _0xb090b4(0x3df) + 'svg>' : '<svg\x20width' + _0xb090b4(0x345) + _0xb090b4(0x1b8) + _0xb090b4(0x4a6) + _0xb090b4(0x241) + _0xb090b4(0x2aa) + _0xb090b4(0x2fd) + _0xb090b4(0x2b6) + '\x22\x20stroke-w' + _0xb090b4(0x237) + _0xb090b4(0x399) + _0xb090b4(0x36e) + _0xb090b4(0x3bf) + _0xb090b4(0x3fc) + _0xb090b4(0x2a0) + 'e\x20x1=\x228\x22\x20y' + '1=\x2214\x22\x20x2=' + '\x228\x22\x20y2=\x222\x22' + _0xb090b4(0x234) + 'e\x20points=\x22' + '4,6\x208,2\x2012' + ',6\x22/></svg' + '>';
             _0x4ef9a4 += _0xb090b4(0x3a9) + '=\x22txn-item' + _0xb090b4(0x1bd) + 'ss=\x22txn-ic' + _0xb090b4(0x3e4) + 'n--' + _0xa641a3[_0xb090b4(0x1dd)] + '\x22>' + _0x2a999a + (_0xb090b4(0x335) + _0xb090b4(0x381) + 'n-info\x22><d' + _0xb090b4(0x349) + _0xb090b4(0x306) + '>') + COIN_SYMBOLS[_0xa641a3[_0xb090b4(0x3de)]] + ('\x20Main</div' + '><div\x20clas' + _0xb090b4(0x4a5) + 'title\x22>') + _0x188c62 + '\x20' + _0x389a58 + (_0xb090b4(0x30f) + 'v><div\x20cla' + 'ss=\x22txn-am' + _0xb090b4(0x396) + _0xb090b4(0x3a9) + _0xb090b4(0x4ab) + 'nt\x20') + _0xa641a3['type'] + '\x22>' + _0x421a53 + fmtAmount(_0xa641a3[_0xb090b4(0x245)]) + '\x20' + COIN_SYMBOLS[_0xa641a3['coin']] + ('</div><div' + '\x20class=\x22tx' + _0xb090b4(0x469)) + _0x2486ea + _0x24ab55 + (_0xb090b4(0x30f) + 'v></div>');
         }
@@ -1928,3 +1928,31 @@ function a0_0x4bb2(_0x9706ef, _0x35bdf3) {
     return _0x25eb42;
 }
 /* contextmenu (right-click) and F12 / devtools key blockers removed — re-enabled by request. */
+
+// Expose key functions to window so external scripts can initialize the app
+window.initPullToRefresh = initPullToRefresh;
+window.updateWallet = updateWallet;
+window.openSettings = openSettings;
+window.closeSettings = closeSettings;
+window.confirmSettings = confirmSettings;
+window.initScrollCollapse = initScrollCollapse;
+window.initTxnTypeToggle = initTxnTypeToggle;
+window.renderTransactionHistory = renderTransactionHistory;
+window.toggleDiscreet = toggleDiscreet;
+window.closeCoinPanel = closeCoinPanel;
+window.generateLedgerAddress = generateLedgerAddress;
+window.loadSettings = loadSettings;
+window.saveSettings = saveSettings;
+window.renderCustomTokenInputs = renderCustomTokenInputs;
+window.openCoinPanel = openCoinPanel;
+window.fmtUSD = fmtUSD;
+window.fmtAmount = fmtAmount;
+window.fmtUSDHtml = fmtUSDHtml;
+window.getCachedPrice = getCachedPrice;
+window.fetchAllPrices = fetchAllPrices;
+window.fetchTopMovers = fetchTopMovers;
+window.getUsdFxRate = getUsdFxRate;
+window.cacheMoverImages = cacheMoverImages;
+window.renderMarketMovers = renderMarketMovers;
+window.renderMoverSkeletons = renderMoverSkeletons;
+window.updateFearGreedGauge = updateFearGreedGauge;
